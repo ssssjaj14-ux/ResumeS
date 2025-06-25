@@ -40,11 +40,11 @@ const ResumeBuilder: React.FC = () => {
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
       name: '',
-      email: 'skshakeel9086@gmail.com',
-      phone: '8074015276',
+      email: '',
+      phone: '',
       location: '',
       summary: '',
-      linkedin: 'https://www.linkedin.com/in/sk-shakeel-ba5a771b1/',
+      linkedin: '',
       github: ''
     },
     experience: [],
@@ -322,7 +322,7 @@ const ResumeBuilder: React.FC = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowTemplateSelector(true)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2 w-full sm:w-auto fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 sm:static sm:translate-x-0 sm:bottom-auto sm:left-auto sm:rounded-lg sm:px-6 sm:py-3 sm:z-auto"
                   >
                     <Palette className="w-5 h-5" />
                     <span>Change Template</span>
