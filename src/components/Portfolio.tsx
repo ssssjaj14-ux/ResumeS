@@ -26,13 +26,13 @@ const Portfolio: React.FC = () => {
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [portfolioData, setPortfolioData] = useState<PortfolioData>({
     personalInfo: {
-      name: 'SK Shakeel',
-      email: 'skshakeel9086@gmail.com',
-      phone: '8074015276',
-      location: 'India',
-      summary: 'Passionate developer creating innovative solutions with modern technologies.',
-      linkedin: 'https://www.linkedin.com/in/sk-shakeel-ba5a771b1/',
-      github: 'https://github.com/skshakeel'
+      name: '',
+      email: '',
+      phone: '',
+      location: '',
+      summary: '',
+      linkedin: '',
+      github: ''
     },
     skills: ['JavaScript', 'React', 'Node.js', 'Python', 'MongoDB', 'Express.js'],
     projects: [
