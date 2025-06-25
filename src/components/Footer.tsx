@@ -49,7 +49,7 @@ const Footer: React.FC = () => {
   const socialLinks = [
     { 
       icon: Linkedin, 
-      href: 'https://www.linkedin.com/in/sk-shakeel-ba5a771b1/', 
+      href: '', 
       label: 'LinkedIn',
       color: 'hover:text-blue-600'
     },
@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
     },
     { 
       icon: Phone, 
-      href: 'tel:8074015276', 
+      href: '', 
       label: 'Phone',
       color: 'hover:text-green-500'
     }
@@ -75,8 +75,8 @@ const Footer: React.FC = () => {
 
   const contactInfo = {
     email: 'skshakeel9086@gmail.com',
-    phone: '8074015276',
-    linkedin: 'https://www.linkedin.com/in/sk-shakeel-ba5a771b1/'
+    phone: '',
+    linkedin: ''
   };
 
   // Modal content for each footer link
