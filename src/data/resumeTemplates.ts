@@ -1,7 +1,7 @@
 export interface ResumeTemplate {
   id: string;
   name: string;
-  category: 'modern' | 'classic' | 'creative' | 'executive' | 'technical' | 'minimalist';
+  category: 'modern' | 'classic' | 'creative' | 'executive' | 'technical' | 'minimalist' | 'artistic' | 'corporate' | 'startup' | 'academic';
   atsScore: number;
   preview: string;
   description: string;
@@ -12,6 +12,12 @@ export interface ResumeTemplate {
     accent: string;
     text: string;
     background: string;
+  };
+  layout: 'single-column' | 'two-column' | 'three-column' | 'sidebar' | 'header-focus' | 'timeline' | 'grid' | 'asymmetric';
+  typography: {
+    headingFont: string;
+    bodyFont: string;
+    fontSize: string;
   };
 }
 
@@ -31,6 +37,12 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#3B82F6',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Inter',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   {
@@ -47,6 +59,12 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#10B981',
       text: '#111827',
       background: '#F9FAFB'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'JetBrains Mono',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   {
@@ -63,38 +81,232 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#8B5CF6',
       text: '#374151',
       background: '#FFFFFF'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Playfair Display',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'modern-4',
-    name: 'Business Elite',
-    category: 'executive',
+    id: 'pixelport-1',
+    name: 'PixelPort',
+    category: 'creative',
+    atsScore: 92,
+    preview: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Pixel-perfect design with modern aesthetics for digital creators',
+    features: ['Pixel Grid Layout', 'Digital Portfolio', 'Interactive Elements', 'Modern Typography'],
+    colors: {
+      primary: '#FF6B6B',
+      secondary: '#4ECDC4',
+      accent: '#45B7D1',
+      text: '#2C3E50',
+      background: '#F8F9FA'
+    },
+    layout: 'grid',
+    typography: {
+      headingFont: 'Poppins',
+      bodyFont: 'Open Sans',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'neowave-1',
+    name: 'NeoWave',
+    category: 'modern',
+    atsScore: 95,
+    preview: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Futuristic wave-inspired design for forward-thinking professionals',
+    features: ['Wave Patterns', 'Gradient Backgrounds', 'Modern Icons', 'Fluid Layout'],
+    colors: {
+      primary: '#667EEA',
+      secondary: '#764BA2',
+      accent: '#F093FB',
+      text: '#2D3748',
+      background: '#FFFFFF'
+    },
+    layout: 'sidebar',
+    typography: {
+      headingFont: 'Montserrat',
+      bodyFont: 'Source Sans Pro',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'aurastack-1',
+    name: 'AuraStack',
+    category: 'modern',
+    atsScore: 94,
+    preview: 'https://images.pexels.com/photos/590045/pexels-photo-590045.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Layered design with glowing aura effects for tech professionals',
+    features: ['Layered Sections', 'Glow Effects', 'Tech Stack Display', 'Modern Cards'],
+    colors: {
+      primary: '#00D4FF',
+      secondary: '#5B73FF',
+      accent: '#9F7AEA',
+      text: '#1A202C',
+      background: '#F7FAFC'
+    },
+    layout: 'three-column',
+    typography: {
+      headingFont: 'Roboto',
+      bodyFont: 'Lato',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'glintlab-1',
+    name: 'GlintLab',
+    category: 'technical',
     atsScore: 97,
-    preview: 'https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Sophisticated template for business leaders',
-    features: ['Executive Summary', 'Achievement Focus', 'Leadership Skills', 'Premium Look'],
+    preview: 'https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Laboratory-inspired design with metallic accents for researchers',
+    features: ['Lab Theme', 'Metallic Accents', 'Research Focus', 'Publication List'],
     colors: {
-      primary: '#DC2626',
-      secondary: '#B91C1C',
-      accent: '#EF4444',
-      text: '#1F2937',
+      primary: '#718096',
+      secondary: '#4A5568',
+      accent: '#ED8936',
+      text: '#2D3748',
       background: '#FFFFFF'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'IBM Plex Sans',
+      bodyFont: 'IBM Plex Sans',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'modern-5',
-    name: 'Minimal Pro',
-    category: 'minimalist',
-    atsScore: 99,
-    preview: 'https://images.pexels.com/photos/590020/pexels-photo-590020.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Ultra-clean design with maximum ATS compatibility',
-    features: ['Highest ATS Score', 'Clean Typography', 'Structured Layout', 'Easy Scanning'],
+    id: 'craftfolio-1',
+    name: 'Craftfolio',
+    category: 'artistic',
+    atsScore: 90,
+    preview: 'https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Handcrafted aesthetic for artists and creative professionals',
+    features: ['Handcrafted Look', 'Artistic Elements', 'Portfolio Gallery', 'Creative Typography'],
     colors: {
-      primary: '#374151',
-      secondary: '#1F2937',
-      accent: '#6B7280',
-      text: '#111827',
+      primary: '#D69E2E',
+      secondary: '#B7791F',
+      accent: '#F6E05E',
+      text: '#2D3748',
+      background: '#FFFAF0'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Crimson Text',
+      bodyFont: 'Libre Baskerville',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'skytrail-1',
+    name: 'SkyTrail',
+    category: 'modern',
+    atsScore: 93,
+    preview: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Sky-inspired design with cloud patterns for aviation and travel industry',
+    features: ['Sky Theme', 'Cloud Patterns', 'Travel Icons', 'Horizon Layout'],
+    colors: {
+      primary: '#3182CE',
+      secondary: '#2C5282',
+      accent: '#63B3ED',
+      text: '#2D3748',
+      background: '#EBF8FF'
+    },
+    layout: 'header-focus',
+    typography: {
+      headingFont: 'Nunito',
+      bodyFont: 'Nunito Sans',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'vantaport-1',
+    name: 'VantaPort',
+    category: 'modern',
+    atsScore: 95,
+    preview: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Dynamic animated background effects for modern professionals',
+    features: ['Animated Backgrounds', 'Dynamic Effects', 'Modern Layout', 'Interactive Elements'],
+    colors: {
+      primary: '#805AD5',
+      secondary: '#6B46C1',
+      accent: '#9F7AEA',
+      text: '#1A202C',
+      background: '#F7FAFC'
+    },
+    layout: 'sidebar',
+    typography: {
+      headingFont: 'Space Grotesk',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'codexgrid-1',
+    name: 'CodexGrid',
+    category: 'technical',
+    atsScore: 98,
+    preview: 'https://images.pexels.com/photos/3861972/pexels-photo-3861972.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Grid-based layout perfect for developers and engineers',
+    features: ['Grid Layout', 'Code Snippets', 'Tech Stack', 'Project Grid'],
+    colors: {
+      primary: '#1A202C',
+      secondary: '#2D3748',
+      accent: '#4FD1C7',
+      text: '#E2E8F0',
+      background: '#171923'
+    },
+    layout: 'grid',
+    typography: {
+      headingFont: 'Fira Code',
+      bodyFont: 'Source Code Pro',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'devloom-1',
+    name: 'DevLoom',
+    category: 'technical',
+    atsScore: 96,
+    preview: 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Woven pattern design for full-stack developers',
+    features: ['Woven Patterns', 'Full-Stack Focus', 'Technology Weave', 'Modern Cards'],
+    colors: {
+      primary: '#38B2AC',
+      secondary: '#319795',
+      accent: '#4FD1C7',
+      text: '#2D3748',
+      background: '#F0FFF4'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'Ubuntu',
+      bodyFont: 'Ubuntu',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'coderipple-1',
+    name: 'CodeRipple',
+    category: 'technical',
+    atsScore: 94,
+    preview: 'https://images.pexels.com/photos/1181679/pexels-photo-1181679.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Ripple effect design for innovative developers',
+    features: ['Ripple Effects', 'Code Animations', 'Dynamic Layout', 'Tech Showcase'],
+    colors: {
+      primary: '#667EEA',
+      secondary: '#764BA2',
+      accent: '#A78BFA',
+      text: '#1A202C',
       background: '#FFFFFF'
+    },
+    layout: 'timeline',
+    typography: {
+      headingFont: 'JetBrains Mono',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   // Classic Templates
@@ -112,6 +324,12 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#4B5563',
       text: '#111827',
       background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Times New Roman',
+      bodyFont: 'Times New Roman',
+      fontSize: 'medium'
     }
   },
   {
@@ -128,41 +346,15 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#3B82F6',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Arial',
+      bodyFont: 'Arial',
+      fontSize: 'medium'
     }
   },
-  // Add 23 more templates...
-  {
-    id: 'creative-1',
-    name: 'Artistic Flair',
-    category: 'creative',
-    atsScore: 91,
-    preview: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Eye-catching design for creative industries',
-    features: ['Unique Layout', 'Color Gradients', 'Creative Sections', 'Visual Impact'],
-    colors: {
-      primary: '#EC4899',
-      secondary: '#DB2777',
-      accent: '#F472B6',
-      text: '#374151',
-      background: '#FEFEFE'
-    }
-  },
-  {
-    id: 'technical-1',
-    name: 'Developer Focus',
-    category: 'technical',
-    atsScore: 96,
-    preview: 'https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Optimized for software engineers and developers',
-    features: ['Code Snippets', 'Tech Stack Display', 'Project Links', 'GitHub Stats'],
-    colors: {
-      primary: '#059669',
-      secondary: '#047857',
-      accent: '#10B981',
-      text: '#111827',
-      background: '#F9FAFB'
-    }
-  },
+  // Executive Templates
   {
     id: 'executive-1',
     name: 'Leadership',
@@ -177,103 +369,12 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#D97706',
       text: '#1F2937',
       background: '#FFFFFF'
-    }
-  },
-  // Continue with more templates to reach 30+
-  {
-    id: 'modern-6',
-    name: 'Startup Founder',
-    category: 'modern',
-    atsScore: 95,
-    preview: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Dynamic template for entrepreneurs and startup founders',
-    features: ['Innovation Focus', 'Venture Highlights', 'Growth Metrics', 'Vision Statement'],
-    colors: {
-      primary: '#F59E0B',
-      secondary: '#D97706',
-      accent: '#FBBF24',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'modern-7',
-    name: 'Data Scientist',
-    category: 'technical',
-    atsScore: 96,
-    preview: 'https://images.pexels.com/photos/590045/pexels-photo-590045.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Specialized for data science and analytics roles',
-    features: ['Data Visualization', 'Research Papers', 'Statistical Skills', 'ML Projects'],
-    colors: {
-      primary: '#0891B2',
-      secondary: '#0E7490',
-      accent: '#06B6D4',
-      text: '#111827',
-      background: '#F8FAFC'
-    }
-  },
-  {
-    id: 'creative-2',
-    name: 'Designer Portfolio',
-    category: 'creative',
-    atsScore: 92,
-    preview: 'https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Showcase your design work with visual elements',
-    features: ['Portfolio Grid', 'Design Tools', 'Creative Process', 'Visual Hierarchy'],
-    colors: {
-      primary: '#8B5CF6',
-      secondary: '#7C3AED',
-      accent: '#A78BFA',
-      text: '#374151',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'minimalist-2',
-    name: 'Clean Slate',
-    category: 'minimalist',
-    atsScore: 98,
-    preview: 'https://images.pexels.com/photos/590024/pexels-photo-590024.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Ultra-minimal design focusing on content',
-    features: ['Maximum Readability', 'Clean Lines', 'Perfect Spacing', 'Content Focus'],
-    colors: {
-      primary: '#000000',
-      secondary: '#374151',
-      accent: '#6B7280',
-      text: '#111827',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'modern-8',
-    name: 'Marketing Pro',
-    category: 'modern',
-    atsScore: 94,
-    preview: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Perfect for marketing and sales professionals',
-    features: ['Campaign Highlights', 'ROI Metrics', 'Brand Experience', 'Growth Numbers'],
-    colors: {
-      primary: '#EF4444',
-      secondary: '#DC2626',
-      accent: '#F87171',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'technical-2',
-    name: 'DevOps Engineer',
-    category: 'technical',
-    atsScore: 97,
-    preview: 'https://images.pexels.com/photos/3861972/pexels-photo-3861972.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Specialized for DevOps and infrastructure roles',
-    features: ['Infrastructure Skills', 'Cloud Platforms', 'Automation Tools', 'System Architecture'],
-    colors: {
-      primary: '#059669',
-      secondary: '#047857',
-      accent: '#34D399',
-      text: '#111827',
-      background: '#F0FDF4'
+    },
+    layout: 'header-focus',
+    typography: {
+      headingFont: 'Merriweather',
+      bodyFont: 'Source Sans Pro',
+      fontSize: 'large'
     }
   },
   {
@@ -290,60 +391,109 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#60A5FA',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'Playfair Display',
+      bodyFont: 'Lora',
+      fontSize: 'large'
+    }
+  },
+  // Minimalist Templates
+  {
+    id: 'minimalist-1',
+    name: 'Clean Slate',
+    category: 'minimalist',
+    atsScore: 98,
+    preview: 'https://images.pexels.com/photos/590024/pexels-photo-590024.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Ultra-minimal design focusing on content',
+    features: ['Maximum Readability', 'Clean Lines', 'Perfect Spacing', 'Content Focus'],
+    colors: {
+      primary: '#000000',
+      secondary: '#374151',
+      accent: '#6B7280',
+      text: '#111827',
+      background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Helvetica',
+      bodyFont: 'Helvetica',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'creative-3',
-    name: 'Content Creator',
-    category: 'creative',
-    atsScore: 90,
-    preview: 'https://images.pexels.com/photos/1181678/pexels-photo-1181678.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Dynamic template for content creators and influencers',
-    features: ['Social Media Stats', 'Content Portfolio', 'Engagement Metrics', 'Brand Partnerships'],
+    id: 'minimalist-2',
+    name: 'Pure Focus',
+    category: 'minimalist',
+    atsScore: 99,
+    preview: 'https://images.pexels.com/photos/590020/pexels-photo-590020.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Highest ATS compatibility with pure minimalism',
+    features: ['Highest ATS Score', 'Pure Typography', 'Zero Distractions', 'Perfect Structure'],
+    colors: {
+      primary: '#374151',
+      secondary: '#1F2937',
+      accent: '#6B7280',
+      text: '#111827',
+      background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Arial',
+      bodyFont: 'Arial',
+      fontSize: 'medium'
+    }
+  },
+  // Startup Templates
+  {
+    id: 'startup-1',
+    name: 'Startup Founder',
+    category: 'startup',
+    atsScore: 95,
+    preview: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Dynamic template for entrepreneurs and startup founders',
+    features: ['Innovation Focus', 'Venture Highlights', 'Growth Metrics', 'Vision Statement'],
     colors: {
       primary: '#F59E0B',
       secondary: '#D97706',
-      accent: '#FCD34D',
-      text: '#1F2937',
-      background: '#FFFBEB'
-    }
-  },
-  {
-    id: 'modern-9',
-    name: 'Product Manager',
-    category: 'modern',
-    atsScore: 95,
-    preview: 'https://images.pexels.com/photos/1181679/pexels-photo-1181679.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Tailored for product management roles',
-    features: ['Product Launches', 'User Metrics', 'Roadmap Experience', 'Cross-functional Leadership'],
-    colors: {
-      primary: '#7C3AED',
-      secondary: '#6D28D9',
-      accent: '#C084FC',
+      accent: '#FBBF24',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Poppins',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'technical-3',
-    name: 'AI/ML Engineer',
-    category: 'technical',
-    atsScore: 96,
-    preview: 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Specialized for AI and machine learning roles',
-    features: ['ML Models', 'Research Papers', 'Algorithm Expertise', 'Data Science Skills'],
+    id: 'startup-2',
+    name: 'Disruptor',
+    category: 'startup',
+    atsScore: 93,
+    preview: 'https://images.pexels.com/photos/3184298/pexels-photo-3184298.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Bold design for industry disruptors and innovators',
+    features: ['Disruptive Design', 'Innovation Metrics', 'Bold Typography', 'Future Focus'],
     colors: {
-      primary: '#0891B2',
-      secondary: '#0E7490',
-      accent: '#22D3EE',
-      text: '#111827',
-      background: '#F0F9FF'
+      primary: '#EF4444',
+      secondary: '#DC2626',
+      accent: '#F87171',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'grid',
+    typography: {
+      headingFont: 'Space Grotesk',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
+  // Academic Templates
   {
-    id: 'minimalist-3',
-    name: 'Academic',
-    category: 'minimalist',
+    id: 'academic-1',
+    name: 'Research Scholar',
+    category: 'academic',
     atsScore: 97,
     preview: 'https://images.pexels.com/photos/590038/pexels-photo-590038.jpeg?auto=compress&cs=tinysrgb&w=400',
     description: 'Perfect for academic and research positions',
@@ -354,262 +504,213 @@ export const resumeTemplates: ResumeTemplate[] = [
       accent: '#9CA3AF',
       text: '#111827',
       background: '#FFFFFF'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'Crimson Text',
+      bodyFont: 'Crimson Text',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'modern-10',
-    name: 'Sales Executive',
-    category: 'modern',
-    atsScore: 94,
-    preview: 'https://images.pexels.com/photos/3184298/pexels-photo-3184298.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Results-driven template for sales professionals',
-    features: ['Sales Metrics', 'Revenue Growth', 'Client Relationships', 'Target Achievement'],
-    colors: {
-      primary: '#DC2626',
-      secondary: '#B91C1C',
-      accent: '#FCA5A5',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'creative-4',
-    name: 'UX Designer',
-    category: 'creative',
-    atsScore: 93,
-    preview: 'https://images.pexels.com/photos/590042/pexels-photo-590042.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'User-centered design template for UX professionals',
-    features: ['Design Process', 'User Research', 'Prototyping Tools', 'Usability Testing'],
-    colors: {
-      primary: '#8B5CF6',
-      secondary: '#7C3AED',
-      accent: '#DDD6FE',
-      text: '#374151',
-      background: '#FEFEFE'
-    }
-  },
-  {
-    id: 'executive-3',
-    name: 'Consultant',
-    category: 'executive',
+    id: 'academic-2',
+    name: 'Professor',
+    category: 'academic',
     atsScore: 96,
-    preview: 'https://images.pexels.com/photos/590044/pexels-photo-590044.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Professional template for consultants and advisors',
-    features: ['Client Success Stories', 'Industry Expertise', 'Problem Solving', 'Strategic Thinking'],
-    colors: {
-      primary: '#059669',
-      secondary: '#047857',
-      accent: '#A7F3D0',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'technical-4',
-    name: 'Cybersecurity',
-    category: 'technical',
-    atsScore: 97,
-    preview: 'https://images.pexels.com/photos/5380646/pexels-photo-5380646.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Secure template for cybersecurity professionals',
-    features: ['Security Certifications', 'Threat Analysis', 'Risk Assessment', 'Compliance Experience'],
-    colors: {
-      primary: '#DC2626',
-      secondary: '#B91C1C',
-      accent: '#FEE2E2',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'modern-11',
-    name: 'HR Professional',
-    category: 'modern',
-    atsScore: 94,
-    preview: 'https://images.pexels.com/photos/590048/pexels-photo-590048.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'People-focused template for HR professionals',
-    features: ['Employee Relations', 'Talent Acquisition', 'Policy Development', 'Culture Building'],
-    colors: {
-      primary: '#EC4899',
-      secondary: '#DB2777',
-      accent: '#FBCFE8',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'creative-5',
-    name: 'Photographer',
-    category: 'creative',
-    atsScore: 89,
-    preview: 'https://images.pexels.com/photos/590050/pexels-photo-590050.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Visual template showcasing photography work',
-    features: ['Portfolio Gallery', 'Equipment List', 'Client Testimonials', 'Exhibition History'],
-    colors: {
-      primary: '#000000',
-      secondary: '#374151',
-      accent: '#F3F4F6',
-      text: '#111827',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'minimalist-4',
-    name: 'Finance Professional',
-    category: 'minimalist',
-    atsScore: 98,
     preview: 'https://images.pexels.com/photos/4386375/pexels-photo-4386375.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Conservative template for finance roles',
-    features: ['Financial Analysis', 'Investment Experience', 'Risk Management', 'Regulatory Knowledge'],
+    description: 'Distinguished template for academic professionals',
+    features: ['Teaching Experience', 'Research Publications', 'Academic Honors', 'Grant History'],
     colors: {
       primary: '#1E40AF',
       secondary: '#1D4ED8',
       accent: '#DBEAFE',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'single-column',
+    typography: {
+      headingFont: 'Libre Baskerville',
+      bodyFont: 'Libre Baskerville',
+      fontSize: 'medium'
     }
   },
+  // Corporate Templates
   {
-    id: 'modern-12',
-    name: 'Healthcare Professional',
-    category: 'modern',
-    atsScore: 95,
-    preview: 'https://images.pexels.com/photos/5452201/pexels-photo-5452201.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Caring template for healthcare professionals',
-    features: ['Medical Certifications', 'Patient Care', 'Clinical Experience', 'Healthcare Technology'],
-    colors: {
-      primary: '#059669',
-      secondary: '#047857',
-      accent: '#D1FAE5',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'technical-5',
-    name: 'Mobile Developer',
-    category: 'technical',
+    id: 'corporate-1',
+    name: 'Fortune 500',
+    category: 'corporate',
     atsScore: 96,
-    preview: 'https://images.pexels.com/photos/607812/pexels-photo-607812.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Mobile-first template for app developers',
-    features: ['App Portfolio', 'Platform Expertise', 'User Ratings', 'Download Statistics'],
+    preview: 'https://images.pexels.com/photos/590044/pexels-photo-590044.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Premium template for Fortune 500 companies',
+    features: ['Corporate Branding', 'Executive Summary', 'Performance Metrics', 'Leadership Skills'],
     colors: {
-      primary: '#7C3AED',
-      secondary: '#6D28D9',
-      accent: '#EDE9FE',
-      text: '#1F2937',
+      primary: '#1F2937',
+      secondary: '#374151',
+      accent: '#6B7280',
+      text: '#111827',
       background: '#FFFFFF'
+    },
+    layout: 'header-focus',
+    typography: {
+      headingFont: 'Roboto',
+      bodyFont: 'Roboto',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'executive-4',
-    name: 'Non-Profit Leader',
-    category: 'executive',
+    id: 'corporate-2',
+    name: 'Global Enterprise',
+    category: 'corporate',
     atsScore: 95,
-    preview: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Mission-driven template for non-profit leaders',
-    features: ['Impact Metrics', 'Fundraising Success', 'Community Engagement', 'Social Mission'],
+    preview: 'https://images.pexels.com/photos/590048/pexels-photo-590048.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'International corporate template with global appeal',
+    features: ['Global Experience', 'Multi-cultural Skills', 'International Projects', 'Language Skills'],
     colors: {
       primary: '#059669',
       secondary: '#047857',
       accent: '#A7F3D0',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'two-column',
+    typography: {
+      headingFont: 'Open Sans',
+      bodyFont: 'Open Sans',
+      fontSize: 'medium'
+    }
+  },
+  // Artistic Templates
+  {
+    id: 'artistic-1',
+    name: 'Creative Genius',
+    category: 'artistic',
+    atsScore: 88,
+    preview: 'https://images.pexels.com/photos/590050/pexels-photo-590050.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Artistic template for creative professionals',
+    features: ['Artistic Layout', 'Creative Typography', 'Portfolio Integration', 'Visual Elements'],
+    colors: {
+      primary: '#EC4899',
+      secondary: '#DB2777',
+      accent: '#FBCFE8',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Dancing Script',
+      bodyFont: 'Lato',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'creative-6',
-    name: 'Video Producer',
-    category: 'creative',
-    atsScore: 91,
+    id: 'artistic-2',
+    name: 'Visual Artist',
+    category: 'artistic',
+    atsScore: 87,
     preview: 'https://images.pexels.com/photos/1117132/pexels-photo-1117132.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Dynamic template for video and film professionals',
-    features: ['Video Portfolio', 'Production Credits', 'Equipment Expertise', 'Client Projects'],
+    description: 'Visual-focused template for artists and designers',
+    features: ['Visual Portfolio', 'Artistic Elements', 'Creative Sections', 'Gallery Layout'],
     colors: {
-      primary: '#DC2626',
-      secondary: '#B91C1C',
-      accent: '#FEE2E2',
-      text: '#1F2937',
-      background: '#000000'
+      primary: '#8B5CF6',
+      secondary: '#7C3AED',
+      accent: '#DDD6FE',
+      text: '#374151',
+      background: '#FEFEFE'
+    },
+    layout: 'grid',
+    typography: {
+      headingFont: 'Abril Fatface',
+      bodyFont: 'Source Sans Pro',
+      fontSize: 'medium'
     }
   },
+  // Additional Modern Templates
   {
-    id: 'modern-13',
-    name: 'Operations Manager',
+    id: 'modern-4',
+    name: 'Digital Native',
     category: 'modern',
-    atsScore: 95,
+    atsScore: 94,
     preview: 'https://images.pexels.com/photos/590062/pexels-photo-590062.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Efficient template for operations professionals',
-    features: ['Process Optimization', 'Cost Reduction', 'Team Leadership', 'Quality Improvement'],
-    colors: {
-      primary: '#F59E0B',
-      secondary: '#D97706',
-      accent: '#FEF3C7',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'minimalist-5',
-    name: 'Legal Professional',
-    category: 'minimalist',
-    atsScore: 97,
-    preview: 'https://images.pexels.com/photos/4427610/pexels-photo-4427610.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Professional template for legal careers',
-    features: ['Bar Admissions', 'Case Experience', 'Legal Specializations', 'Court Appearances'],
-    colors: {
-      primary: '#1F2937',
-      secondary: '#374151',
-      accent: '#F3F4F6',
-      text: '#111827',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'technical-6',
-    name: 'Cloud Architect',
-    category: 'technical',
-    atsScore: 97,
-    preview: 'https://images.pexels.com/photos/590066/pexels-photo-590066.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Scalable template for cloud professionals',
-    features: ['Cloud Platforms', 'Architecture Design', 'Migration Projects', 'Cost Optimization'],
-    colors: {
-      primary: '#0891B2',
-      secondary: '#0E7490',
-      accent: '#CFFAFE',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    }
-  },
-  {
-    id: 'modern-14',
-    name: 'Project Manager',
-    category: 'modern',
-    atsScore: 96,
-    preview: 'https://images.pexels.com/photos/590068/pexels-photo-590068.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Organized template for project management roles',
-    features: ['Project Success Rate', 'Team Leadership', 'Budget Management', 'Stakeholder Relations'],
+    description: 'Born-digital template for modern professionals',
+    features: ['Digital Focus', 'Social Media Integration', 'Online Portfolio', 'Tech Savvy'],
     colors: {
       primary: '#8B5CF6',
       secondary: '#7C3AED',
       accent: '#F3E8FF',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'sidebar',
+    typography: {
+      headingFont: 'Inter',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   },
   {
-    id: 'creative-7',
-    name: 'Brand Manager',
-    category: 'creative',
+    id: 'modern-5',
+    name: 'Future Ready',
+    category: 'modern',
     atsScore: 93,
+    preview: 'https://images.pexels.com/photos/590066/pexels-photo-590066.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Future-focused design for next-gen professionals',
+    features: ['Future Design', 'AI Integration', 'Automation Focus', 'Innovation Metrics'],
+    colors: {
+      primary: '#0891B2',
+      secondary: '#0E7490',
+      accent: '#CFFAFE',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'three-column',
+    typography: {
+      headingFont: 'Space Grotesk',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'modern-6',
+    name: 'Quantum',
+    category: 'modern',
+    atsScore: 92,
+    preview: 'https://images.pexels.com/photos/590068/pexels-photo-590068.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Quantum-inspired design for cutting-edge professionals',
+    features: ['Quantum Effects', 'Particle Animations', 'Scientific Layout', 'Research Focus'],
+    colors: {
+      primary: '#6366F1',
+      secondary: '#4F46E5',
+      accent: '#C7D2FE',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'timeline',
+    typography: {
+      headingFont: 'Orbitron',
+      bodyFont: 'Roboto',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'modern-7',
+    name: 'Holographic',
+    category: 'modern',
+    atsScore: 91,
     preview: 'https://images.pexels.com/photos/590070/pexels-photo-590070.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Brand-focused template for marketing professionals',
-    features: ['Brand Strategy', 'Campaign Results', 'Market Research', 'Creative Direction'],
+    description: 'Holographic effects for futuristic professionals',
+    features: ['Holographic Design', 'Iridescent Colors', 'Future Tech', '3D Elements'],
     colors: {
       primary: '#EC4899',
       secondary: '#DB2777',
       accent: '#FCE7F3',
       text: '#1F2937',
       background: '#FFFFFF'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Exo 2',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
     }
   }
 ];
