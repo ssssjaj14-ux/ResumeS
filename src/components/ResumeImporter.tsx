@@ -878,12 +878,10 @@ JavaScript, Python, React, Node.js, Express, MongoDB, PostgreSQL, Git, AWS, Dock
                     <span className="ml-2 text-gray-900 dark:text-white">{extractedData.skills.length} skills</span>
                     <div className="flex flex-wrap gap-2">
                       {extractedData.skills.slice(0, 10).map((skill, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full"
-                        >
-                          {skill}
-                        </span>
+                        <div key={index} className="flex items-center">
+                          <span className="text-green-500 mr-2">{'>'}</span>
+                          <span className="text-green-300">{skill}</span>
+                        </div>
                       ))}
                       {extractedData.skills.length > 10 && (
                         <span className="text-xs text-gray-500 dark:text-gray-400">
