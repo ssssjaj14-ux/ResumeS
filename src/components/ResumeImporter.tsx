@@ -312,6 +312,11 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     return education;
   };
 
+  // Helper function to escape special regex characters
+  const escapeRegExp = (string: string): string => {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
   const extractSkills = (text: string) => {
     const skills = [];
     const skillsKeywords = ['skills', 'technologies', 'technical skills', 'competencies'];
@@ -343,7 +348,8 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     const searchText = skillsSection || text;
     
     for (const skill of commonSkills) {
-      const regex = new RegExp(`\\b${skill}\\b`, 'i');
+      const escapedSkill = escapeRegExp(skill);
+      const regex = new RegExp(`\\b${escapedSkill}\\b`, 'i');
       if (regex.test(searchText)) {
         skills.push(skill);
       }
