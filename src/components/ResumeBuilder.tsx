@@ -464,7 +464,7 @@ const ResumeBuilder: React.FC = () => {
           >
             {/* Import Resume Card */}
             <div className="flex flex-col sm:flex-row gap-4 w-full">
-              <motion.div
+            <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex-1 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-2xl p-6 border border-green-200/50 dark:border-green-700/50 flex flex-col justify-between"
@@ -472,12 +472,12 @@ const ResumeBuilder: React.FC = () => {
                 <div className="flex items-center space-x-4 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
                     <Upload className="w-6 h-6 text-white" />
-                  </div>
+              </div>
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Import Existing Resume</h3>
                     <p className="text-gray-600 dark:text-gray-300">Upload your current resume to auto-fill all fields</p>
-                  </div>
-                </div>
+              </div>
+              </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -508,9 +508,9 @@ const ResumeBuilder: React.FC = () => {
                   <FileText className="w-5 h-5" />
                   <span>Change Template</span>
                 </motion.button>
-              </motion.div>
-            </div>
-
+            </motion.div>
+                  </div>
+                  
             {/* Current Template Display */}
             {selectedTemplateData && (
               <div className="flex items-center justify-between flex-col sm:flex-row gap-4">
@@ -521,7 +521,7 @@ const ResumeBuilder: React.FC = () => {
                       alt={selectedTemplateData.name}
                       className="w-full h-full object-contain"
                     />
-                  </div>
+                          </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                       {selectedTemplateData.name}
@@ -533,13 +533,13 @@ const ResumeBuilder: React.FC = () => {
                       <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
                         <Award className="w-3 h-3" />
                         <span>{selectedTemplateData.atsScore}% ATS</span>
-                      </div>
+                        </div>
                       <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-medium capitalize">
                         {selectedTemplateData.category}
                       </span>
-                    </div>
-                  </div>
-                </div>
+                      </div>
+                        </div>
+                      </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -549,7 +549,7 @@ const ResumeBuilder: React.FC = () => {
                   <Palette className="w-5 h-5" />
                   <span>Change Template</span>
                 </motion.button>
-              </div>
+                    </div>
             )}
 
             {/* Template Features */}
