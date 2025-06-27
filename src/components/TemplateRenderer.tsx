@@ -356,7 +356,7 @@ const TemplateRenderer: React.FC<TemplateRendererProps> = ({ templateId, resumeD
           <div className="grid grid-cols-2 gap-4">
             {resumeData.skills.map((skill, index) => (
               <div key={index} className="flex items-center">
-                      <span className="text-green-500 mr-2">{'>'}</span>
+                <span className="text-green-500 mr-2">{'>'}</span>
                 <span className="text-green-300">{skill}</span>
               </div>
             ))}
