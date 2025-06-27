@@ -22,7 +22,7 @@ export interface ResumeTemplate {
 }
 
 export const resumeTemplates: ResumeTemplate[] = [
-  // Modern Templates
+  // Modern Templates with Unique Designs
   {
     id: 'modern-1',
     name: 'Executive Pro',
@@ -46,52 +46,8 @@ export const resumeTemplates: ResumeTemplate[] = [
     }
   },
   {
-    id: 'modern-2',
-    name: 'Tech Innovator',
-    category: 'technical',
-    atsScore: 96,
-    preview: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Perfect for software developers and tech professionals',
-    features: ['Code-Friendly', 'Project Showcase', 'Technical Skills', 'GitHub Integration'],
-    colors: {
-      primary: '#059669',
-      secondary: '#047857',
-      accent: '#10B981',
-      text: '#111827',
-      background: '#F9FAFB'
-    },
-    layout: 'two-column',
-    typography: {
-      headingFont: 'JetBrains Mono',
-      bodyFont: 'Inter',
-      fontSize: 'medium'
-    }
-  },
-  {
-    id: 'modern-3',
-    name: 'Creative Edge',
-    category: 'creative',
-    atsScore: 94,
-    preview: 'https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Bold design for creative professionals and designers',
-    features: ['Visual Appeal', 'Portfolio Section', 'Creative Layout', 'Color Accents'],
-    colors: {
-      primary: '#7C3AED',
-      secondary: '#6D28D9',
-      accent: '#8B5CF6',
-      text: '#374151',
-      background: '#FFFFFF'
-    },
-    layout: 'asymmetric',
-    typography: {
-      headingFont: 'Playfair Display',
-      bodyFont: 'Inter',
-      fontSize: 'medium'
-    }
-  },
-  {
     id: 'pixelport-1',
-    name: 'PixelPort',
+    name: 'PixelPort Creative',
     category: 'creative',
     atsScore: 92,
     preview: 'https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -113,7 +69,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'neowave-1',
-    name: 'NeoWave',
+    name: 'NeoWave Futuristic',
     category: 'modern',
     atsScore: 95,
     preview: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -135,7 +91,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'aurastack-1',
-    name: 'AuraStack',
+    name: 'AuraStack Dynamic',
     category: 'modern',
     atsScore: 94,
     preview: 'https://images.pexels.com/photos/590045/pexels-photo-590045.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -157,7 +113,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'glintlab-1',
-    name: 'GlintLab',
+    name: 'GlintLab Research',
     category: 'technical',
     atsScore: 97,
     preview: 'https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -179,7 +135,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'craftfolio-1',
-    name: 'Craftfolio',
+    name: 'Craftfolio Artisan',
     category: 'artistic',
     atsScore: 90,
     preview: 'https://images.pexels.com/photos/196645/pexels-photo-196645.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -201,7 +157,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'skytrail-1',
-    name: 'SkyTrail',
+    name: 'SkyTrail Explorer',
     category: 'modern',
     atsScore: 93,
     preview: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -223,7 +179,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'vantaport-1',
-    name: 'VantaPort',
+    name: 'VantaPort Dynamic',
     category: 'modern',
     atsScore: 95,
     preview: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -245,7 +201,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'codexgrid-1',
-    name: 'CodexGrid',
+    name: 'CodexGrid Developer',
     category: 'technical',
     atsScore: 98,
     preview: 'https://images.pexels.com/photos/3861972/pexels-photo-3861972.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -267,7 +223,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'devloom-1',
-    name: 'DevLoom',
+    name: 'DevLoom Weaver',
     category: 'technical',
     atsScore: 96,
     preview: 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -289,7 +245,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'coderipple-1',
-    name: 'CodeRipple',
+    name: 'CodeRipple Innovation',
     category: 'technical',
     atsScore: 94,
     preview: 'https://images.pexels.com/photos/1181679/pexels-photo-1181679.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -312,7 +268,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   // Classic Templates
   {
     id: 'classic-1',
-    name: 'Traditional',
+    name: 'Traditional Elite',
     category: 'classic',
     atsScore: 95,
     preview: 'https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -357,7 +313,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   // Executive Templates
   {
     id: 'executive-1',
-    name: 'Leadership',
+    name: 'Leadership Excellence',
     category: 'executive',
     atsScore: 97,
     preview: 'https://images.pexels.com/photos/590471/pexels-photo-590471.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -379,7 +335,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'executive-2',
-    name: 'Board Member',
+    name: 'Board Member Elite',
     category: 'executive',
     atsScore: 98,
     preview: 'https://images.pexels.com/photos/1181406/pexels-photo-1181406.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -402,7 +358,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   // Minimalist Templates
   {
     id: 'minimalist-1',
-    name: 'Clean Slate',
+    name: 'Clean Slate Pro',
     category: 'minimalist',
     atsScore: 98,
     preview: 'https://images.pexels.com/photos/590024/pexels-photo-590024.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -424,7 +380,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'minimalist-2',
-    name: 'Pure Focus',
+    name: 'Pure Focus Elite',
     category: 'minimalist',
     atsScore: 99,
     preview: 'https://images.pexels.com/photos/590020/pexels-photo-590020.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -441,6 +397,51 @@ export const resumeTemplates: ResumeTemplate[] = [
     typography: {
       headingFont: 'Arial',
       bodyFont: 'Arial',
+      fontSize: 'medium'
+    }
+  },
+  // Creative Templates
+  {
+    id: 'creative-1',
+    name: 'Creative Genius',
+    category: 'creative',
+    atsScore: 88,
+    preview: 'https://images.pexels.com/photos/590050/pexels-photo-590050.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Artistic template for creative professionals',
+    features: ['Artistic Layout', 'Creative Typography', 'Portfolio Integration', 'Visual Elements'],
+    colors: {
+      primary: '#EC4899',
+      secondary: '#DB2777',
+      accent: '#FBCFE8',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'asymmetric',
+    typography: {
+      headingFont: 'Dancing Script',
+      bodyFont: 'Lato',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'creative-2',
+    name: 'Visual Artist Pro',
+    category: 'creative',
+    atsScore: 87,
+    preview: 'https://images.pexels.com/photos/1117132/pexels-photo-1117132.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Visual-focused template for artists and designers',
+    features: ['Visual Portfolio', 'Artistic Elements', 'Creative Sections', 'Gallery Layout'],
+    colors: {
+      primary: '#8B5CF6',
+      secondary: '#7C3AED',
+      accent: '#DDD6FE',
+      text: '#374151',
+      background: '#FEFEFE'
+    },
+    layout: 'grid',
+    typography: {
+      headingFont: 'Abril Fatface',
+      bodyFont: 'Source Sans Pro',
       fontSize: 'medium'
     }
   },
@@ -469,7 +470,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'startup-2',
-    name: 'Disruptor',
+    name: 'Disruptor Elite',
     category: 'startup',
     atsScore: 93,
     preview: 'https://images.pexels.com/photos/3184298/pexels-photo-3184298.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -514,7 +515,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   },
   {
     id: 'academic-2',
-    name: 'Professor',
+    name: 'Professor Elite',
     category: 'academic',
     atsScore: 96,
     preview: 'https://images.pexels.com/photos/4386375/pexels-photo-4386375.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -537,7 +538,7 @@ export const resumeTemplates: ResumeTemplate[] = [
   // Corporate Templates
   {
     id: 'corporate-1',
-    name: 'Fortune 500',
+    name: 'Fortune 500 Elite',
     category: 'corporate',
     atsScore: 96,
     preview: 'https://images.pexels.com/photos/590044/pexels-photo-590044.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -579,99 +580,10 @@ export const resumeTemplates: ResumeTemplate[] = [
       fontSize: 'medium'
     }
   },
-  // Artistic Templates
+  // Additional Modern Templates with Unique Styles
   {
-    id: 'artistic-1',
-    name: 'Creative Genius',
-    category: 'artistic',
-    atsScore: 88,
-    preview: 'https://images.pexels.com/photos/590050/pexels-photo-590050.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Artistic template for creative professionals',
-    features: ['Artistic Layout', 'Creative Typography', 'Portfolio Integration', 'Visual Elements'],
-    colors: {
-      primary: '#EC4899',
-      secondary: '#DB2777',
-      accent: '#FBCFE8',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    },
-    layout: 'asymmetric',
-    typography: {
-      headingFont: 'Dancing Script',
-      bodyFont: 'Lato',
-      fontSize: 'medium'
-    }
-  },
-  {
-    id: 'artistic-2',
-    name: 'Visual Artist',
-    category: 'artistic',
-    atsScore: 87,
-    preview: 'https://images.pexels.com/photos/1117132/pexels-photo-1117132.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Visual-focused template for artists and designers',
-    features: ['Visual Portfolio', 'Artistic Elements', 'Creative Sections', 'Gallery Layout'],
-    colors: {
-      primary: '#8B5CF6',
-      secondary: '#7C3AED',
-      accent: '#DDD6FE',
-      text: '#374151',
-      background: '#FEFEFE'
-    },
-    layout: 'grid',
-    typography: {
-      headingFont: 'Abril Fatface',
-      bodyFont: 'Source Sans Pro',
-      fontSize: 'medium'
-    }
-  },
-  // Additional Modern Templates
-  {
-    id: 'modern-4',
-    name: 'Digital Native',
-    category: 'modern',
-    atsScore: 94,
-    preview: 'https://images.pexels.com/photos/590062/pexels-photo-590062.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Born-digital template for modern professionals',
-    features: ['Digital Focus', 'Social Media Integration', 'Online Portfolio', 'Tech Savvy'],
-    colors: {
-      primary: '#8B5CF6',
-      secondary: '#7C3AED',
-      accent: '#F3E8FF',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    },
-    layout: 'sidebar',
-    typography: {
-      headingFont: 'Inter',
-      bodyFont: 'Inter',
-      fontSize: 'medium'
-    }
-  },
-  {
-    id: 'modern-5',
-    name: 'Future Ready',
-    category: 'modern',
-    atsScore: 93,
-    preview: 'https://images.pexels.com/photos/590066/pexels-photo-590066.jpeg?auto=compress&cs=tinysrgb&w=400',
-    description: 'Future-focused design for next-gen professionals',
-    features: ['Future Design', 'AI Integration', 'Automation Focus', 'Innovation Metrics'],
-    colors: {
-      primary: '#0891B2',
-      secondary: '#0E7490',
-      accent: '#CFFAFE',
-      text: '#1F2937',
-      background: '#FFFFFF'
-    },
-    layout: 'three-column',
-    typography: {
-      headingFont: 'Space Grotesk',
-      bodyFont: 'Inter',
-      fontSize: 'medium'
-    }
-  },
-  {
-    id: 'modern-6',
-    name: 'Quantum',
+    id: 'modern-quantum',
+    name: 'Quantum Pro',
     category: 'modern',
     atsScore: 92,
     preview: 'https://images.pexels.com/photos/590068/pexels-photo-590068.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -692,8 +604,8 @@ export const resumeTemplates: ResumeTemplate[] = [
     }
   },
   {
-    id: 'modern-7',
-    name: 'Holographic',
+    id: 'modern-holographic',
+    name: 'Holographic Elite',
     category: 'modern',
     atsScore: 91,
     preview: 'https://images.pexels.com/photos/590070/pexels-photo-590070.jpeg?auto=compress&cs=tinysrgb&w=400',
@@ -712,6 +624,50 @@ export const resumeTemplates: ResumeTemplate[] = [
       bodyFont: 'Inter',
       fontSize: 'medium'
     }
+  },
+  {
+    id: 'modern-digital-native',
+    name: 'Digital Native Pro',
+    category: 'modern',
+    atsScore: 94,
+    preview: 'https://images.pexels.com/photos/590062/pexels-photo-590062.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Born-digital template for modern professionals',
+    features: ['Digital Focus', 'Social Media Integration', 'Online Portfolio', 'Tech Savvy'],
+    colors: {
+      primary: '#8B5CF6',
+      secondary: '#7C3AED',
+      accent: '#F3E8FF',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'sidebar',
+    typography: {
+      headingFont: 'Inter',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
+    }
+  },
+  {
+    id: 'modern-future-ready',
+    name: 'Future Ready Elite',
+    category: 'modern',
+    atsScore: 93,
+    preview: 'https://images.pexels.com/photos/590066/pexels-photo-590066.jpeg?auto=compress&cs=tinysrgb&w=400',
+    description: 'Future-focused design for next-gen professionals',
+    features: ['Future Design', 'AI Integration', 'Automation Focus', 'Innovation Metrics'],
+    colors: {
+      primary: '#0891B2',
+      secondary: '#0E7490',
+      accent: '#CFFAFE',
+      text: '#1F2937',
+      background: '#FFFFFF'
+    },
+    layout: 'three-column',
+    typography: {
+      headingFont: 'Space Grotesk',
+      bodyFont: 'Inter',
+      fontSize: 'medium'
+    }
   }
 ];
 
@@ -727,4 +683,18 @@ export const getHighestATSTemplates = (limit: number = 10) => {
   return resumeTemplates
     .sort((a, b) => b.atsScore - a.atsScore)
     .slice(0, limit);
+};
+
+export const getTemplatesByAtsScore = (minScore: number = 90) => {
+  return resumeTemplates.filter(template => template.atsScore >= minScore);
+};
+
+export const searchTemplates = (query: string) => {
+  const searchTerm = query.toLowerCase();
+  return resumeTemplates.filter(template => 
+    template.name.toLowerCase().includes(searchTerm) ||
+    template.description.toLowerCase().includes(searchTerm) ||
+    template.category.toLowerCase().includes(searchTerm) ||
+    template.features.some(feature => feature.toLowerCase().includes(searchTerm))
+  );
 };
