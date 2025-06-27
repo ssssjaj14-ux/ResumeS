@@ -13,6 +13,10 @@ export interface Job {
   logo?: string;
   remote: boolean;
   skills: string[];
+  postedDate: string;
+  applicationUrl?: string;
+  source: 'linkedin' | 'indeed' | 'glassdoor' | 'angelist' | 'remoteok' | 'weworkremotely';
+  matchScore?: number;
 }
 
 // Enhanced mock job data with SEO-optimized content
@@ -31,7 +35,9 @@ const mockJobs: Job[] = [
     url: 'https://careers.google.com',
     logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
     remote: false,
-    skills: ['JavaScript', 'React', 'Node.js', 'Python', 'AWS', 'System Design', 'Full Stack Development']
+    skills: ['JavaScript', 'React', 'Node.js', 'Python', 'AWS', 'System Design', 'Full Stack Development'],
+    postedDate: '2024-01-15',
+    source: 'linkedin'
   },
   {
     id: '2',
@@ -47,7 +53,9 @@ const mockJobs: Job[] = [
     url: 'https://careers.microsoft.com',
     logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
     remote: true,
-    skills: ['React', 'TypeScript', 'CSS', 'JavaScript', 'Azure', 'Frontend Development']
+    skills: ['React', 'TypeScript', 'CSS', 'JavaScript', 'Azure', 'Frontend Development'],
+    postedDate: '2024-01-14',
+    source: 'linkedin'
   },
   {
     id: '3',
@@ -63,7 +71,9 @@ const mockJobs: Job[] = [
     url: 'https://amazon.jobs',
     logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
     remote: false,
-    skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'AWS', 'Data Science']
+    skills: ['Python', 'Machine Learning', 'SQL', 'TensorFlow', 'AWS', 'Data Science'],
+    postedDate: '2024-01-13',
+    source: 'indeed'
   },
   {
     id: '4',
@@ -79,7 +89,9 @@ const mockJobs: Job[] = [
     url: 'https://flipkart.com/careers',
     logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
     remote: false,
-    skills: ['Product Management', 'Analytics', 'Strategy', 'Leadership', 'Data Analysis']
+    skills: ['Product Management', 'Analytics', 'Strategy', 'Leadership', 'Data Analysis'],
+    postedDate: '2024-01-10',
+    source: 'glassdoor'
   },
   {
     id: '5',
@@ -95,7 +107,9 @@ const mockJobs: Job[] = [
     url: 'https://zomato.com/careers',
     logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
     remote: true,
-    skills: ['Docker', 'Kubernetes', 'AWS', 'Jenkins', 'Python', 'DevOps', 'Cloud Computing']
+    skills: ['Docker', 'Kubernetes', 'AWS', 'Jenkins', 'Python', 'DevOps', 'Cloud Computing'],
+    postedDate: '2024-01-12',
+    source: 'indeed'
   }
 ];
 
@@ -145,6 +159,8 @@ const generateMoreJobs = (): Job[] => {
     ['Unity', 'C#', 'Unreal Engine', 'Game Development', '3D Modeling']
   ];
   
+  const sources: Job['source'][] = ['linkedin', 'indeed', 'glassdoor', 'angelist', 'remoteok', 'weworkremotely'];
+  
   const additionalJobs: Job[] = [];
   
   for (let i = 6; i <= 2000; i++) {
@@ -157,6 +173,8 @@ const generateMoreJobs = (): Job[] => {
     const type = ['full-time', 'part-time', 'contract', 'internship'][Math.floor(Math.random() * 4)] as Job['type'];
     const skills = skillSets[Math.floor(Math.random() * skillSets.length)];
     const postedDays = Math.floor(Math.random() * 30) + 1;
+    const source = sources[Math.floor(Math.random() * sources.length)];
+    const postedDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     
     additionalJobs.push({
       id: i.toString(),
@@ -172,7 +190,9 @@ const generateMoreJobs = (): Job[] => {
       url: `https://${company.toLowerCase().replace(/\s+/g, '').replace(/&/g, '')}.com/careers`,
       logo: 'https://images.pexels.com/photos/270408/pexels-photo-270408.jpeg?auto=compress&cs=tinysrgb&w=100',
       remote,
-      skills: skills
+      skills: skills,
+      postedDate,
+      source
     });
   }
   

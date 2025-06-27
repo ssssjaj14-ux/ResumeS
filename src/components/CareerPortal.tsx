@@ -18,11 +18,16 @@ import {
   Zap,
   Building,
   Globe,
-  Heart
+  Heart,
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { searchJobs, getRecommendedJobs, Job, fetchJobsFromRapidAPI, fetchSmartJobsFromInternet, recordUserJobSearch } from '../services/jobService';
 import { ResumeData } from '../utils/pdfGenerator';
 import toast from 'react-hot-toast';
+import { analyzeResumeWithAI, getCareerInsights } from '../services/aiService';
+import { getJobMarketAnalytics } from '../services/jobService';
 
 interface CareerPortalProps {
   isLoggedIn: boolean;
@@ -46,12 +51,17 @@ const CareerPortal: React.FC<CareerPortalProps> = ({ isLoggedIn, resumeData, onL
   const [activeTab, setActiveTab] = useState<'search' | 'recommended' | 'saved'>('search');
   const [showRapidApiJobs, setShowRapidApiJobs] = useState(true);
   const [showSmartInternetJobs, setShowSmartInternetJobs] = useState(false);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [careerInsights, setCareerInsights] = useState<any>(null);
+  const [marketAnalytics, setMarketAnalytics] = useState<any>(null);
 
   useEffect(() => {
     if (isLoggedIn) {
       loadJobs();
       loadRecommendedJobs();
       loadSavedJobs();
+      loadCareerInsights();
+      loadMarketAnalytics();
     }
   }, [isLoggedIn]);
 
@@ -136,6 +146,24 @@ const CareerPortal: React.FC<CareerPortalProps> = ({ isLoggedIn, resumeData, onL
     const saved = localStorage.getItem('savedJobs');
     if (saved) {
       setSavedJobs(JSON.parse(saved));
+    }
+  };
+
+  const loadCareerInsights = async () => {
+    try {
+      const insights = await getCareerInsights(resumeData);
+      setCareerInsights(insights);
+    } catch (error) {
+      console.error('Failed to load career insights:', error);
+    }
+  };
+
+  const loadMarketAnalytics = async () => {
+    try {
+      const analytics = getJobMarketAnalytics();
+      setMarketAnalytics(analytics);
+    } catch (error) {
+      console.error('Failed to load market analytics:', error);
     }
   };
 

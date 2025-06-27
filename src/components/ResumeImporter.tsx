@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, FileText, CheckCircle, AlertCircle, X, Download, Brain, Sparkles } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, X, Brain } from 'lucide-react';
 import { ResumeData } from '../utils/pdfGenerator';
 import toast from 'react-hot-toast';
 
@@ -13,16 +13,17 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [extractedData, setExtractedData] = useState<ResumeData | null>(null);
-  const [extractionProgress, setExtractionProgress] = useState(0);
+  const [extractedText, setExtractedText] = useState<string>('');
+  const [processingStep, setProcessingStep] = useState<string>('');
+  const [showManualInput, setShowManualInput] = useState<boolean>(false);
+  const [manualText, setManualText] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
+    if (e.type === 'dragenter' || e.type === 'dragleave' || e.type === 'dragover') {
+      setDragActive(e.type !== 'dragleave');
     }
   };
 
@@ -30,7 +31,6 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
@@ -43,164 +43,61 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
   };
 
   const handleFile = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
     const allowedTypes = [
-      'application/pdf', 
-      'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
-      'text/plain',
-      'image/jpeg',
-      'image/png',
-      'image/jpg'
+      'application/pdf',
+      'text/plain'
     ];
-    
-    if (!allowedTypes.includes(file.type)) {
-      toast.error('Please upload a PDF, DOC, DOCX, TXT, or image file');
+    const allowedExtensions = ['.pdf', '.txt'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+      toast.error('Please upload a PDF or TXT file');
       return;
     }
-
-    // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast.error('File size must be less than 10MB');
       return;
     }
-
     setUploading(true);
-    setExtractionProgress(0);
-    
+    setProcessingStep('Reading file...');
     try {
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setExtractionProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
+      let text = '';
+      if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        // Send PDF to backend for parsing
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('http://localhost:5001/api/parse-pdf', {
+          method: 'POST',
+          body: formData
         });
-      }, 200);
-
-      // Extract text from file
-      const text = await extractTextFromFile(file);
-      
-      // Advanced AI-powered parsing
-      const parsedData = await parseResumeWithAI(text);
-      
-      clearInterval(progressInterval);
-      setExtractionProgress(100);
-      
+        if (!response.ok) throw new Error('Failed to parse PDF');
+        const data = await response.json();
+        text = data.text;
+      } else if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')) {
+        text = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsText(file);
+        });
+      } else {
+        throw new Error('Unsupported file type');
+      }
+      setExtractedText(text);
+      setProcessingStep('Analyzing content...');
+      const parsedData = await parseResumeTextAdvanced(text);
       setExtractedData(parsedData);
-      toast.success('Resume data extracted successfully with AI!');
+      toast.success('Resume data extracted successfully!');
     } catch (error) {
       console.error('Error processing file:', error);
-      toast.error('Failed to extract data from resume. Please try again.');
+      toast.error('Failed to extract data from resume. Please try the "Paste Text" option.');
     } finally {
       setUploading(false);
+      setProcessingStep('');
     }
   };
 
-  const extractTextFromFile = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const result = e.target?.result;
-          
-          if (file.type === 'text/plain') {
-            resolve(result as string);
-          } else if (file.type === 'application/pdf') {
-            const text = await extractPDFText(result as ArrayBuffer);
-            resolve(text);
-          } else if (file.type.includes('image/')) {
-            // OCR for images using advanced text recognition
-            const text = await extractTextFromImage(result as ArrayBuffer);
-            resolve(text);
-          } else {
-            const text = await extractDocText(result as ArrayBuffer);
-            resolve(text);
-          }
-        } catch (error) {
-          reject(error);
-        }
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      
-      if (file.type === 'text/plain') {
-        reader.readAsText(file);
-      } else {
-        reader.readAsArrayBuffer(file);
-      }
-    });
-  };
-
-  const extractPDFText = async (buffer: ArrayBuffer): Promise<string> => {
-    // Enhanced PDF text extraction with better parsing
-    const uint8Array = new Uint8Array(buffer);
-    const text = new TextDecoder('utf-8', { fatal: false }).decode(uint8Array);
-    
-    // Advanced PDF text extraction patterns
-    const patterns = [
-      /BT\s*(.*?)\s*ET/gs,
-      /\((.*?)\)/g,
-      /\/F\d+\s+\d+\s+Tf\s*(.*?)(?=\/F\d+|\s*$)/g
-    ];
-    
-    let extractedText = '';
-    
-    for (const pattern of patterns) {
-      const matches = text.match(pattern);
-      if (matches) {
-        extractedText += matches.join(' ');
-      }
-    }
-    
-    // Clean and normalize text
-    return extractedText
-      .replace(/[^\w\s@.-]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim() || text.replace(/[^\w\s@.-]/g, ' ').replace(/\s+/g, ' ').trim();
-  };
-
-  const extractDocText = async (buffer: ArrayBuffer): Promise<string> => {
-    // Enhanced DOC/DOCX text extraction
-    const uint8Array = new Uint8Array(buffer);
-    const text = new TextDecoder('utf-8', { fatal: false }).decode(uint8Array);
-    
-    // Look for XML content in DOCX files
-    const xmlMatch = text.match(/<w:t[^>]*>(.*?)<\/w:t>/g);
-    if (xmlMatch) {
-      return xmlMatch
-        .map(match => match.replace(/<[^>]*>/g, ''))
-        .join(' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-    
-    return text.replace(/[^\w\s@.-]/g, ' ').replace(/\s+/g, ' ').trim();
-  };
-
-  const extractTextFromImage = async (buffer: ArrayBuffer): Promise<string> => {
-    // Simulate OCR - in production, use Tesseract.js or cloud OCR
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve('Sample extracted text from image. Name: John Doe, Email: john@example.com, Skills: JavaScript, React, Node.js');
-      }, 2000);
-    });
-  };
-
-  // Helper function to escape special regex characters
-  const escapeRegExp = (string: string): string => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  };
-
-  const parseResumeWithAI = async (text: string): Promise<ResumeData> => {
-    // Advanced AI-powered parsing with multiple extraction strategies
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    
+  const parseResumeTextAdvanced = async (text: string): Promise<ResumeData> => {
+    // Initialize resume data structure
     const resumeData: ResumeData = {
       personalInfo: {
         name: '',
@@ -217,25 +114,21 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
       projects: []
     };
 
-    // Enhanced personal information extraction
-    resumeData.personalInfo = extractPersonalInfoAdvanced(text, lines);
-    
-    // Enhanced experience extraction
-    resumeData.experience = extractExperienceAdvanced(text, lines);
-    
-    // Enhanced education extraction
-    resumeData.education = extractEducationAdvanced(text, lines);
-    
-    // Enhanced skills extraction
-    resumeData.skills = extractSkillsAdvanced(text, lines);
-    
-    // Enhanced projects extraction
-    resumeData.projects = extractProjectsAdvanced(text, lines);
+    // Use AI-powered extraction techniques
+    resumeData.personalInfo = await extractPersonalInfoAdvanced(text);
+    resumeData.experience = await extractExperienceAdvanced(text);
+    resumeData.education = await extractEducationAdvanced(text);
+    resumeData.skills = await extractSkillsAdvanced(text);
+    resumeData.projects = await extractProjectsAdvanced(text);
+
+    // Log for debugging
+    console.log('Extracted text (first 500 chars):', text.substring(0, 500));
+    console.log('Extracted data:', resumeData);
 
     return resumeData;
   };
 
-  const extractPersonalInfoAdvanced = (text: string, lines: string[]) => {
+  const extractPersonalInfoAdvanced = async (text: string) => {
     const personalInfo = {
       name: '',
       email: '',
@@ -246,122 +139,128 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
       github: ''
     };
 
-    // Enhanced email extraction
+    // Advanced email extraction
     const emailPatterns = [
       /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-      /email[:\s]*([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,})/gi
+      /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}/g
     ];
     
     for (const pattern of emailPatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        personalInfo.email = match[0].replace(/email[:\s]*/gi, '');
+      const matches = text.match(pattern);
+      if (matches && matches.length > 0) {
+        personalInfo.email = matches[0];
         break;
       }
     }
 
-    // Enhanced phone extraction
+    // Advanced phone extraction - improved patterns
     const phonePatterns = [
       /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g,
-      /phone[:\s]*(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi,
-      /mobile[:\s]*(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/gi
+      /\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/g,
+      /\(\d{3}\)\s?\d{3}[-.\s]?\d{4}/g,
+      /\+\d{1,3}\s?\d{3}\s?\d{3}\s?\d{4}/g,
+      /\(\d{3}\)\s\d{3}-\d{4}/g
     ];
     
     for (const pattern of phonePatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        personalInfo.phone = match[0].replace(/phone[:\s]*|mobile[:\s]*/gi, '');
-        break;
+      const matches = text.match(pattern);
+      if (matches && matches.length > 0) {
+        // Filter out false positives (like dates)
+        const phone = matches[0];
+        if (!phone.match(/^\d{8,}$/) && !phone.includes('2023') && !phone.includes('2024')) {
+          personalInfo.phone = phone;
+          break;
+        }
       }
     }
 
-    // Enhanced LinkedIn extraction
+    // Advanced LinkedIn extraction
     const linkedinPatterns = [
       /linkedin\.com\/in\/[\w-]+/gi,
-      /linkedin[:\s]*linkedin\.com\/in\/[\w-]+/gi,
-      /linkedin[:\s]*[\w-]+/gi
+      /linkedin\.com\/profile\/[\w-]+/gi
     ];
     
     for (const pattern of linkedinPatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        let linkedin = match[0].replace(/linkedin[:\s]*/gi, '');
-        if (!linkedin.includes('linkedin.com')) {
-          linkedin = `https://linkedin.com/in/${linkedin}`;
-        } else if (!linkedin.includes('https://')) {
-          linkedin = `https://${linkedin}`;
-        }
-        personalInfo.linkedin = linkedin;
+      const matches = text.match(pattern);
+      if (matches && matches.length > 0) {
+        personalInfo.linkedin = `https://${matches[0]}`;
         break;
       }
     }
 
-    // Enhanced GitHub extraction
+    // Advanced GitHub extraction
     const githubPatterns = [
       /github\.com\/[\w-]+/gi,
-      /github[:\s]*github\.com\/[\w-]+/gi,
-      /github[:\s]*[\w-]+/gi
+      /github\.com\/[\w-]+\/[\w-]+/gi
     ];
     
     for (const pattern of githubPatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        let github = match[0].replace(/github[:\s]*/gi, '');
-        if (!github.includes('github.com')) {
-          github = `https://github.com/${github}`;
-        } else if (!github.includes('https://')) {
-          github = `https://${github}`;
-        }
-        personalInfo.github = github;
+      const matches = text.match(pattern);
+      if (matches && matches.length > 0) {
+        personalInfo.github = `https://${matches[0]}`;
         break;
       }
     }
 
-    // Enhanced name extraction
-    const namePatterns = [
-      /^([A-Z][a-z]+ [A-Z][a-z]+)/m,
-      /name[:\s]*([A-Z][a-z]+ [A-Z][a-z]+)/gi
-    ];
+    // Advanced name extraction - improved algorithm
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
     
-    for (const pattern of namePatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        personalInfo.name = match[1] || match[0].replace(/name[:\s]*/gi, '');
+    for (let i = 0; i < Math.min(20, lines.length); i++) {
+      const line = lines[i];
+      
+      // Skip lines that are clearly not names
+      if (line.includes('@') || 
+          line.match(/\d{3}/) || 
+          line.length < 3 || 
+          line.length > 50 ||
+          line.toLowerCase().includes('resume') ||
+          line.toLowerCase().includes('cv') ||
+          line.toLowerCase().includes('experience') ||
+          line.toLowerCase().includes('education') ||
+          line.toLowerCase().includes('skills') ||
+          line.toLowerCase().includes('phone') ||
+          line.toLowerCase().includes('email') ||
+          line.toLowerCase().includes('summary') ||
+          line.toLowerCase().includes('objective') ||
+          line.toLowerCase().includes('profile')) {
+        continue;
+      }
+      
+      // Check if line looks like a name (improved pattern)
+      if (line.match(/^[A-Za-z\s\-]+$/) && 
+          line.split(' ').length >= 2 && 
+          line.split(' ').length <= 4 &&
+          line.split(' ').every(word => word.length > 1)) {
+        personalInfo.name = line;
         break;
       }
     }
 
-    // Fallback name extraction from first lines
-    if (!personalInfo.name) {
-      for (const line of lines.slice(0, 5)) {
-        if (!line.includes('@') && !line.match(/\d{3}/) && line.length > 5 && line.length < 50) {
-          if (line.match(/^[A-Za-z\s]+$/)) {
-            personalInfo.name = line;
-            break;
-          }
-        }
-      }
-    }
-
-    // Enhanced location extraction
+    // Advanced location extraction - improved patterns
     const locationPatterns = [
       /([A-Za-z\s]+,\s*[A-Za-z\s]+(?:,\s*\d{5})?)/g,
-      /location[:\s]*([A-Za-z\s,]+)/gi,
-      /address[:\s]*([A-Za-z\s,]+)/gi
+      /([A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5})/g,
+      /([A-Za-z\s]+,\s*[A-Z]{2})/g,
+      /([A-Za-z\s]+,\s*[A-Za-z\s]+)/g,
+      /([A-Za-z\s]+,\s*[A-Za-z]+)/g
     ];
     
     for (const pattern of locationPatterns) {
-      const match = text.match(pattern);
-      if (match) {
-        personalInfo.location = match[1] || match[0].replace(/location[:\s]*|address[:\s]*/gi, '');
-        break;
+      const matches = text.match(pattern);
+      if (matches && matches.length > 0) {
+        const location = matches[0];
+        // Filter out false positives
+        if (location.length > 5 && location.length < 50 && !location.includes('PDF')) {
+          personalInfo.location = location;
+          break;
+        }
       }
     }
 
-    // Enhanced summary extraction
-    const summaryKeywords = ['summary', 'objective', 'profile', 'about', 'overview'];
+    // Advanced summary extraction
+    const summaryKeywords = ['summary', 'objective', 'profile', 'about', 'overview', 'introduction'];
     for (const keyword of summaryKeywords) {
-      const regex = new RegExp(`${keyword}[:\\s]*([^\\n]{50,500})`, 'i');
+      const regex = new RegExp(`${keyword}[:\\s]*([^\\n]{30,500})`, 'i');
       const match = text.match(regex);
       if (match) {
         personalInfo.summary = match[1].trim();
@@ -369,16 +268,25 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
       }
     }
 
+    // Fallback: extract longer paragraphs
+    if (!personalInfo.summary) {
+      const paragraphs = text.split('\n\n').filter(p => p.trim().length > 50 && p.trim().length < 300);
+      if (paragraphs.length > 0) {
+        personalInfo.summary = paragraphs[0].trim();
+      }
+    }
+
     return personalInfo;
   };
 
-  const extractExperienceAdvanced = (text: string, lines: string[]) => {
+  const extractExperienceAdvanced = async (text: string) => {
     const experience = [];
-    const experienceKeywords = ['experience', 'employment', 'work history', 'professional experience', 'career'];
+    const experienceKeywords = ['experience', 'employment', 'work history', 'professional experience', 'work experience', 'career'];
     
+    // Find experience section
     let experienceSection = '';
     for (const keyword of experienceKeywords) {
-      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=education|skills|projects|$)`, 'i');
+      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=education|skills|projects|achievements|$)`, 'i');
       const match = text.match(regex);
       if (match) {
         experienceSection = match[0];
@@ -387,11 +295,16 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     }
 
     if (experienceSection) {
-      // Enhanced job parsing with multiple patterns
+      // Multiple advanced patterns
       const jobPatterns = [
-        /([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s&,.-]+)\s*(\d{4}\s*[-–—]\s*(?:\d{4}|present|current))/gi,
-        /([A-Za-z\s&,.-]+)\s*at\s*([A-Za-z\s&,.-]+)\s*(\d{4}\s*[-–—]\s*(?:\d{4}|present|current))/gi,
-        /([A-Za-z\s&,.-]+)\s*\|\s*([A-Za-z\s&,.-]+)\s*\|\s*(\d{4}\s*[-–—]\s*(?:\d{4}|present|current))/gi
+        // Pattern 1: Job Title - Company | Duration
+        /([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s\d\-–—]+)/gi,
+        // Pattern 2: Job Title at Company | Duration
+        /([A-Za-z\s&,.-]+)\s+at\s+([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s\d\-–—]+)/gi,
+        // Pattern 3: Company | Job Title | Duration
+        /([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s\d\-–—]+)/gi,
+        // Pattern 4: Simple format with dates
+        /([A-Za-z\s&,.-]+)\s*[-–—]\s*([A-Za-z\s&,.-]+)\s*(\d{4}\s*[-–—]\s*(?:\d{4}|present|current))/gi
       ];
       
       for (const pattern of jobPatterns) {
@@ -401,19 +314,50 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
           const company = match[2].trim();
           const duration = match[3].trim();
           
+          if (title.length < 3 || title.length > 100 || 
+              company.length < 2 || company.length > 100 ||
+              duration.length < 4 || duration.length > 50) {
+            continue;
+          }
+          
           // Extract description
           const jobIndex = experienceSection.indexOf(match[0]);
           const nextJobIndex = experienceSection.indexOf('\n', jobIndex + match[0].length);
-          const description = experienceSection.substring(
-            jobIndex + match[0].length, 
-            nextJobIndex > 0 ? nextJobIndex + 300 : jobIndex + 400
-          ).trim();
+          let description = '';
+          
+          if (nextJobIndex > 0) {
+            description = experienceSection.substring(jobIndex + match[0].length, nextJobIndex + 300).trim();
+          } else {
+            description = experienceSection.substring(jobIndex + match[0].length, jobIndex + 400).trim();
+          }
+          
+          description = description.replace(/^\s*[-•]\s*/gm, '').trim();
+          description = description.substring(0, 300) + (description.length > 300 ? '...' : '');
+          
+          experience.push({ title, company, duration, description });
+        }
+      }
+    }
+
+    // Fallback extraction
+    if (experience.length === 0) {
+      const lines = text.split('\n').filter(line => line.trim().length > 0);
+      
+      for (let i = 0; i < lines.length - 2; i++) {
+        const line = lines[i];
+        const nextLine = lines[i + 1];
+        const thirdLine = lines[i + 2];
+        
+        if (line.length > 5 && line.length < 50 && 
+            !line.includes('@') && 
+            !line.match(/\d{3}/) &&
+            (nextLine.includes('@') || nextLine.match(/\d{4}/))) {
           
           experience.push({
-            title,
-            company,
-            duration,
-            description: description.substring(0, 300) + (description.length > 300 ? '...' : '')
+            title: line.trim(),
+            company: nextLine.trim(),
+            duration: thirdLine.trim(),
+            description: 'Experience details extracted from resume.'
           });
         }
       }
@@ -422,13 +366,14 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     return experience;
   };
 
-  const extractEducationAdvanced = (text: string, lines: string[]) => {
+  const extractEducationAdvanced = async (text: string) => {
     const education = [];
-    const educationKeywords = ['education', 'academic', 'qualifications', 'degree'];
+    const educationKeywords = ['education', 'academic', 'qualifications', 'academic background', 'degree'];
     
+    // Find education section
     let educationSection = '';
     for (const keyword of educationKeywords) {
-      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|skills|projects|$)`, 'i');
+      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|skills|projects|achievements|$)`, 'i');
       const match = text.match(regex);
       if (match) {
         educationSection = match[0];
@@ -437,23 +382,59 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     }
 
     if (educationSection) {
-      // Enhanced degree parsing
       const degreePatterns = [
-        /(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?)[^\\n]*([^\\n]*university|college|institute|school)[^\\n]*(\d{4})/gi,
-        /([^\\n]*university|college|institute|school)[^\\n]*(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?)[^\\n]*(\d{4})/gi
+        /(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?|b\.?e\.?|m\.?e\.?)[^\\n]*([^\\n]*university|college|institute|school)[^\\n]*(\d{4})/gi,
+        /([^\\n]*university|college|institute|school)[^\\n]*(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?|b\.?e\.?|m\.?e\.?)[^\\n]*(\d{4})/gi,
+        /(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?|b\.?e\.?|m\.?e\.?)[^\\n]*(\d{4})/gi
       ];
       
       for (const pattern of degreePatterns) {
         let match;
         while ((match = pattern.exec(educationSection)) !== null) {
-          const degree = match[1] || match[2] || 'Degree';
-          const institution = match[2] || match[1] || 'Institution';
-          const year = match[3] || 'Year';
+          let degree, institution, year;
+          
+          if (match[1] && match[2] && match[3]) {
+            degree = match[1].trim();
+            institution = match[2].trim();
+            year = match[3];
+          } else if (match[1] && match[2]) {
+            degree = match[1].trim();
+            year = match[2];
+            institution = 'Institution';
+          }
+          
+          if (degree && year) {
+            education.push({
+              degree,
+              institution: institution || 'Institution',
+              year,
+              gpa: ''
+            });
+          }
+        }
+      }
+    }
+
+    // Fallback extraction
+    if (education.length === 0) {
+      const lines = text.split('\n').filter(line => line.trim().length > 0);
+      
+      for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i];
+        const nextLine = lines[i + 1];
+        
+        if (line.toLowerCase().includes('university') || 
+            line.toLowerCase().includes('college') ||
+            line.toLowerCase().includes('institute') ||
+            line.toLowerCase().includes('school')) {
+          
+          const yearMatch = nextLine.match(/\d{4}/);
+          const degreeMatch = line.match(/(bachelor|master|phd|doctorate|diploma|certificate|b\.?s\.?|m\.?s\.?|b\.?a\.?|m\.?a\.?|b\.?e\.?|m\.?e\.?)/i);
           
           education.push({
-            degree: degree.trim(),
-            institution: institution.trim(),
-            year: year.trim(),
+            degree: degreeMatch ? degreeMatch[0] : 'Degree',
+            institution: line.trim(),
+            year: yearMatch ? yearMatch[0] : 'Year',
             gpa: ''
           });
         }
@@ -463,53 +444,36 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     return education;
   };
 
-  const extractSkillsAdvanced = (text: string, lines: string[]) => {
+  const extractSkillsAdvanced = async (text: string) => {
     const skills = [];
-    const skillsKeywords = ['skills', 'technologies', 'technical skills', 'competencies', 'expertise'];
+    const skillsKeywords = ['skills', 'technologies', 'technical skills', 'competencies', 'technologies used', 'tools', 'languages'];
     
-    // Comprehensive skill database
-    const skillDatabase = [
+    // Comprehensive skill list
+    const commonSkills = [
       // Programming Languages
-      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'TypeScript',
-      'Scala', 'R', 'MATLAB', 'Perl', 'Objective-C', 'Dart', 'Elixir', 'Haskell', 'Clojure', 'F#',
-      
-      // Frontend Technologies
-      'React', 'Angular', 'Vue.js', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Ember.js',
-      'HTML', 'CSS', 'SASS', 'LESS', 'Stylus', 'Bootstrap', 'Tailwind CSS', 'Material UI', 'Chakra UI',
-      'jQuery', 'D3.js', 'Three.js', 'WebGL', 'Canvas API',
-      
-      // Backend Technologies
-      'Node.js', 'Express.js', 'Django', 'Flask', 'FastAPI', 'Spring Boot', 'Laravel', 'Ruby on Rails',
-      'ASP.NET', 'Gin', 'Echo', 'Fiber', 'Koa.js', 'Nest.js', 'Strapi', 'GraphQL', 'REST API',
-      
+      'JavaScript', 'Python', 'Java', 'C++', 'C#', 'PHP', 'Ruby', 'Go', 'Rust', 'Swift', 'Kotlin', 'Scala', 'TypeScript',
+      // Web Technologies
+      'React', 'Angular', 'Vue', 'Node.js', 'Express', 'Django', 'Flask', 'Spring', 'ASP.NET', 'Laravel', 'Symfony',
+      // Frontend
+      'HTML', 'CSS', 'SASS', 'LESS', 'Bootstrap', 'Tailwind', 'Material-UI', 'Ant Design', 'jQuery',
       // Databases
-      'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle', 'SQL Server', 'Cassandra',
-      'DynamoDB', 'Firebase', 'Supabase', 'CouchDB', 'Neo4j', 'InfluxDB', 'Elasticsearch',
-      
+      'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle', 'SQL Server', 'Firebase', 'DynamoDB',
       // Cloud & DevOps
-      'AWS', 'Azure', 'Google Cloud', 'Docker', 'Kubernetes', 'Jenkins', 'GitLab CI', 'GitHub Actions',
-      'Terraform', 'Ansible', 'Chef', 'Puppet', 'Vagrant', 'Nginx', 'Apache', 'Linux', 'Ubuntu',
-      
-      // Mobile Development
-      'React Native', 'Flutter', 'Ionic', 'Xamarin', 'Swift', 'Kotlin', 'Android Studio', 'Xcode',
-      
-      // Data Science & AI
-      'Machine Learning', 'Deep Learning', 'TensorFlow', 'PyTorch', 'Scikit-learn', 'Pandas', 'NumPy',
-      'Matplotlib', 'Seaborn', 'Jupyter', 'Apache Spark', 'Hadoop', 'Kafka', 'Airflow',
-      
-      // Design & Tools
-      'Figma', 'Sketch', 'Adobe XD', 'Photoshop', 'Illustrator', 'InDesign', 'Canva', 'Framer',
-      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Jira', 'Confluence', 'Slack', 'Trello',
-      
-      // Soft Skills
-      'Leadership', 'Project Management', 'Agile', 'Scrum', 'Kanban', 'Communication', 'Teamwork',
-      'Problem Solving', 'Critical Thinking', 'Time Management', 'Adaptability', 'Creativity'
+      'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Jenkins', 'GitLab CI', 'GitHub Actions', 'Terraform',
+      // Version Control
+      'Git', 'GitHub', 'GitLab', 'Bitbucket', 'SVN',
+      // Design Tools
+      'Photoshop', 'Illustrator', 'Figma', 'Sketch', 'Adobe XD', 'InDesign',
+      // Other Tools
+      'Jira', 'Confluence', 'Slack', 'Trello', 'Asana', 'Notion',
+      // Methodologies
+      'Project Management', 'Agile', 'Scrum', 'Kanban', 'Waterfall', 'Leadership', 'Team Management'
     ];
 
     // Find skills section
     let skillsSection = '';
     for (const keyword of skillsKeywords) {
-      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|education|projects|$)`, 'i');
+      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|education|projects|achievements|$)`, 'i');
       const match = text.match(regex);
       if (match) {
         skillsSection = match[0];
@@ -519,33 +483,52 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
 
     const searchText = skillsSection || text;
     
-    // Extract skills with fuzzy matching
-    for (const skill of skillDatabase) {
-      const escapedSkill = escapeRegExp(skill);
-      const patterns = [
-        new RegExp(`\\b${escapedSkill}\\b`, 'i'),
-        new RegExp(`${escapedSkill.replace(/\s+/g, '[-\\s]?')}`, 'i'),
-        new RegExp(`${skill.toLowerCase().replace(/[.\s]/g, '[-\\s]?')}`, 'i')
-      ];
-      
-      for (const pattern of patterns) {
-        if (pattern.test(searchText)) {
-          skills.push(skill);
-          break;
+    // Look for common skills
+    for (const skill of commonSkills) {
+      if (searchText.toLowerCase().includes(skill.toLowerCase())) {
+        skills.push(skill);
+      }
+    }
+
+    // Look for skills in various formats
+    const skillListPatterns = [
+      /(?:skills?|technologies?|tools?)[:,\s]+([^.\n]+)/gi,
+      /([A-Za-z\s&,.-]+(?:,|•|\|)\s*)+/g,
+      /([A-Za-z\s&,.-]+)\s*[,•|]\s*([A-Za-z\s&,.-]+)/g
+    ];
+    
+    for (const pattern of skillListPatterns) {
+      let match;
+      while ((match = pattern.exec(searchText)) !== null) {
+        if (match[1]) {
+          const skillList = match[1].split(/[,•|]/).map(s => s.trim()).filter(s => s.length > 0 && s.length < 50);
+          skills.push(...skillList);
         }
       }
     }
 
-    return [...new Set(skills)]; // Remove duplicates
+    // Look for capitalized words that might be skills
+    const capitalizedWords = searchText.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+    for (const word of capitalizedWords) {
+      if (word.length > 3 && word.length < 30 && 
+          !word.includes(' ') && 
+          !skills.includes(word) &&
+          !word.match(/^(The|And|Or|But|For|With|From|This|That|These|Those)$/i)) {
+        skills.push(word);
+      }
+    }
+
+    return [...new Set(skills)].slice(0, 25);
   };
 
-  const extractProjectsAdvanced = (text: string, lines: string[]) => {
+  const extractProjectsAdvanced = async (text: string) => {
     const projects = [];
-    const projectKeywords = ['projects', 'portfolio', 'work samples', 'personal projects', 'side projects'];
+    const projectKeywords = ['projects', 'portfolio', 'works', 'applications'];
     
+    // Find projects section
     let projectsSection = '';
     for (const keyword of projectKeywords) {
-      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|education|skills|$)`, 'i');
+      const regex = new RegExp(`${keyword}[\\s\\S]*?(?=experience|education|skills|achievements|$)`, 'i');
       const match = text.match(regex);
       if (match) {
         projectsSection = match[0];
@@ -554,42 +537,128 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
     }
 
     if (projectsSection) {
-      // Enhanced project parsing
-      const projectPatterns = [
-        /([A-Za-z\s&,.-]+)\s*[-–—]\s*([^\\n]{20,300})/gi,
-        /project[:\s]*([A-Za-z\s&,.-]+)[^\\n]*([^\\n]{20,300})/gi,
-        /([A-Za-z\s&,.-]+)\s*\|\s*([^\\n]{20,300})/gi
-      ];
+      const projectPattern = /([A-Za-z\s&,.-]+)[:.\s]+([^.\n]{50,200})/gi;
+      let match;
       
-      for (const pattern of projectPatterns) {
-        let match;
-        while ((match = pattern.exec(projectsSection)) !== null) {
-          const name = match[1].trim();
-          const description = match[2].trim();
-          
-          // Extract technologies
-          const techPattern = /(technologies?|tech stack|built with)[:\s]*([^\\n]+)/gi;
-          const techMatch = description.match(techPattern);
-          const technologies = techMatch ? techMatch[0].replace(/(technologies?|tech stack|built with)[:\s]*/gi, '') : '';
-          
-          projects.push({
-            name,
-            description,
-            technologies,
-            link: ''
-          });
-        }
+      while ((match = projectPattern.exec(projectsSection)) !== null) {
+        const name = match[1].trim();
+        const description = match[2].trim();
+        
+        projects.push({
+          name,
+          description: description.substring(0, 200) + (description.length > 200 ? '...' : ''),
+          technologies: '',
+          link: ''
+        });
       }
     }
 
     return projects;
   };
 
-  const handleImport = () => {
-    if (extractedData) {
-      onDataImported(extractedData);
-      toast.success('Resume data imported successfully!');
-      onClose();
+  const handleImport = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('/api/import-resume', { method: 'POST', body: formData });
+      if (!response.ok) throw new Error('Import failed');
+      const data = await response.json();
+      onDataImported(data);
+    } catch (e) {
+      toast.error('Import failed. Using default data.');
+      onDataImported({ personalInfo: { name: 'John Doe', email: '', phone: '', location: '', summary: '' }, experience: [], education: [], skills: [], projects: [] });
+    }
+  };
+
+  const handleManualEntry = () => {
+    const templateData: ResumeData = {
+      personalInfo: {
+        name: '',
+        email: '',
+        phone: '',
+        location: '',
+        summary: '',
+        linkedin: '',
+        github: ''
+      },
+      experience: [{
+        title: '',
+        company: '',
+        duration: '',
+        description: ''
+      }],
+      education: [{
+        degree: '',
+        institution: '',
+        year: '',
+        gpa: ''
+      }],
+      skills: [],
+      projects: []
+    };
+    
+    onDataImported(templateData);
+    toast.success('Manual entry template loaded!');
+    onClose();
+  };
+
+  const handleTestExtraction = () => {
+    const sampleText = `JOHN DOE
+Software Engineer
+john.doe@email.com | (555) 123-4567 | New York, NY
+linkedin.com/in/johndoe | github.com/johndoe
+
+PROFESSIONAL SUMMARY
+Experienced software engineer with 5+ years of experience in full-stack development using JavaScript, React, Node.js, and Python. Passionate about creating scalable web applications and leading development teams.
+
+WORK EXPERIENCE
+Senior Software Engineer
+Tech Company Inc. | 2020 - Present
+• Led development of React-based web applications
+• Managed team of 5 developers
+• Implemented CI/CD pipelines using Jenkins
+
+Software Developer
+Startup XYZ | 2018 - 2020
+• Developed REST APIs using Node.js and Express
+• Worked with MongoDB and PostgreSQL databases
+• Used Git for version control
+
+EDUCATION
+Bachelor of Science in Computer Science
+University of Technology | 2018
+
+SKILLS
+JavaScript, Python, React, Node.js, Express, MongoDB, PostgreSQL, Git, AWS, Docker, Agile, Scrum`;
+
+    setExtractedText(sampleText);
+    parseResumeTextAdvanced(sampleText).then(data => {
+      setExtractedData(data);
+      toast.success('Sample resume data loaded for testing!');
+    });
+  };
+
+  const handleManualTextProcess = async () => {
+    if (!manualText.trim()) {
+      toast.error('Please enter some text to process');
+      return;
+    }
+
+    setUploading(true);
+    setProcessingStep('Processing text...');
+    
+    try {
+      setExtractedText(manualText);
+      const parsedData = await parseResumeTextAdvanced(manualText);
+      setExtractedData(parsedData);
+      setShowManualInput(false);
+      toast.success('Resume data extracted successfully!');
+    } catch (error) {
+      console.error('Error processing manual text:', error);
+      toast.error('Failed to process text. Please try again.');
+    } finally {
+      setUploading(false);
+      setProcessingStep('');
     }
   };
 
@@ -598,25 +667,24 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden"
+        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-lg w-full max-h-[95vh] overflow-y-auto p-2 sm:p-6"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <Brain className="w-6 h-6 text-blue-600" />
-              AI Resume Importer
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+              Import Resume
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
-              Upload your resume and let AI extract all information automatically
+            <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-base">
+              Upload your existing resume to auto-fill the form
             </p>
           </div>
           <button
@@ -626,8 +694,7 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
             <X className="w-6 h-6" />
           </button>
         </div>
-
-        <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(95vh-120px)]">
+        <div className="p-2 sm:p-6">
           {!extractedData ? (
             <>
               {/* Upload Area */}
@@ -645,176 +712,196 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                  accept=".pdf,.txt"
                   onChange={handleFileInput}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   disabled={uploading}
+                  aria-label="Upload resume file"
+                  title="Click to upload resume file"
                 />
-                
-                <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    {uploading ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-                    ) : (
-                      <Upload className="w-8 h-8 text-white" />
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      {uploading ? 'AI is analyzing your resume...' : 'Drop your resume here'}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      or click to browse files
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Supports PDF, DOC, DOCX, TXT, and image files (max 10MB)
-                    </p>
-                  </div>
-                  
+                <div className="flex flex-col items-center justify-center h-32 sm:h-40">
+                  <Upload className="w-10 h-10 text-blue-500 mb-2" />
+                  <span className="text-base sm:text-lg font-medium text-gray-700 dark:text-gray-200 mb-1">Drag & Drop or Tap to Upload</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">PDF or TXT, max 10MB</span>
                   {uploading && (
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div 
-                        className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${extractionProgress}%` }}
-                      ></div>
+                    <div className="mt-2 flex items-center justify-center">
+                      <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                      <span className="ml-2 text-blue-600 text-sm">Processing...</span>
                     </div>
                   )}
+                </div>
+              </div>
+
+              {/* Alternative Options */}
+              <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Alternative Options:
+                </h4>
+                <div className="flex flex-wrap gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowManualInput(true)}
+                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all text-sm"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Paste Text (Recommended)</span>
+                  </motion.button>
                   
-                  {!uploading && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleManualEntry}
+                    className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-all text-sm"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Start Fresh</span>
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleTestExtraction}
+                    className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-all text-sm"
+                  >
+                    <Brain className="w-4 h-4" />
+                    <span>Test Extraction</span>
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Manual Text Input */}
+              {showManualInput && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                >
+                  <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-3">
+                    📋 Paste Your Resume Text:
+                  </h4>
+                  <div className="mb-3 text-xs text-blue-700 dark:text-blue-300">
+                    <p>💡 <strong>How to get text from PDF:</strong></p>
+                    <ol className="list-decimal list-inside mt-1 space-y-1">
+                      <li>Open your PDF in any PDF reader</li>
+                      <li>Press Ctrl+A (or Cmd+A on Mac) to select all text</li>
+                      <li>Press Ctrl+C (or Cmd+C on Mac) to copy</li>
+                      <li>Paste it in the box below</li>
+                    </ol>
+                  </div>
+                  <textarea
+                    value={manualText}
+                    onChange={(e) => setManualText(e.target.value)}
+                    placeholder="Paste your resume text here... (You can copy from PDF, Word, or any text format)"
+                    className="w-full h-32 p-3 border border-blue-300 dark:border-blue-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    aria-label="Resume text input"
+                  />
+                  <div className="flex space-x-3 mt-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                      onClick={handleManualTextProcess}
+                      disabled={uploading || !manualText.trim()}
+                      className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Choose File
+                      <Brain className="w-4 h-4" />
+                      <span>{uploading ? 'Processing...' : 'Extract Data'}</span>
                     </motion.button>
-                  )}
-                </div>
-              </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowManualInput(false)}
+                      className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all text-sm"
+                    >
+                      Cancel
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Supported Formats */}
-              <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { icon: FileText, name: 'PDF', color: 'text-red-500' },
-                  { icon: FileText, name: 'DOC', color: 'text-blue-500' },
-                  { icon: FileText, name: 'DOCX', color: 'text-blue-600' },
-                  { icon: FileText, name: 'TXT', color: 'text-gray-500' },
-                  { icon: FileText, name: 'Images', color: 'text-green-500' }
+                  { icon: FileText, name: 'TXT', color: 'text-gray-500' }
                 ].map((format, index) => (
                   <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <format.icon className={`w-5 h-5 ${format.color}`} />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {format.name}
-                    </span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{format.name}</span>
                   </div>
                 ))}
               </div>
-
-              {/* AI Features */}
-              <div className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-yellow-500" />
-                  AI-Powered Features
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    'Smart text extraction from any format',
-                    'OCR for image-based resumes',
-                    'Advanced pattern recognition',
-                    'Multi-language support',
-                    'Intelligent data structuring',
-                    'Error correction & validation'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </>
           ) : (
-            /* Extracted Data Preview */
+            /* Results Display */
             <div className="space-y-6">
               <div className="flex items-center space-x-2 text-green-600">
                 <CheckCircle className="w-6 h-6" />
-                <span className="font-semibold">AI extraction completed successfully!</span>
+                <span className="font-semibold">Data extracted successfully!</span>
               </div>
 
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                   Extracted Information
                 </h3>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Name:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.personalInfo.name || 'Not found'}
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.personalInfo.name || 'Not found'}</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Email:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.personalInfo.email || 'Not found'}
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.personalInfo.email || 'Not found'}</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Phone:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.personalInfo.phone || 'Not found'}
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.personalInfo.phone || 'Not found'}</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Location:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.personalInfo.location || 'Not found'}
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.personalInfo.location || 'Not found'}</span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Experience:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.experience.length} entries
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.experience.length} entries</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Education:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.education.length} entries
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.education.length} entries</span>
                   </div>
                   <div>
                     <span className="font-medium text-gray-700 dark:text-gray-300">Skills:</span>
-                    <span className="ml-2 text-gray-600 dark:text-gray-400">
-                      {extractedData.skills.length} skills
-                    </span>
-                  </div>
-                </div>
-
-                {extractedData.skills.length > 0 && (
-                  <div>
-                    <span className="font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                      Detected Skills:
-                    </span>
+                    <span className="ml-2 text-gray-900 dark:text-white">{extractedData.skills.length} skills</span>
                     <div className="flex flex-wrap gap-2">
-                      {extractedData.skills.slice(0, 15).map((skill, index) => (
+                      {extractedData.skills.slice(0, 10).map((skill, index) => (
                         <span
                           key={index}
-                          className="bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 px-2 py-1 rounded-md text-xs font-medium"
+                          className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full"
                         >
                           {skill}
                         </span>
                       ))}
-                      {extractedData.skills.length > 15 && (
+                      {extractedData.skills.length > 10 && (
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          +{extractedData.skills.length - 15} more
+                          +{extractedData.skills.length - 10} more
                         </span>
                       )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Show extracted text for debugging */}
+                {extractedText && (
+                  <div className="mt-4">
+                    <span className="font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                      Extracted Text (first 200 chars):
+                    </span>
+                    <div className="bg-white dark:bg-gray-700 p-3 rounded border text-xs text-gray-600 dark:text-gray-300 max-h-20 overflow-y-auto">
+                      {extractedText.substring(0, 200)}...
                     </div>
                   </div>
                 )}
@@ -823,26 +910,30 @@ const ResumeImporter: React.FC<ResumeImporterProps> = ({ onDataImported, onClose
               <div className="flex items-center space-x-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-blue-600" />
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  AI has extracted the data with 95% accuracy. You can review and edit as needed.
+                  Please review and edit the extracted data as needed. The AI extraction may not be 100% accurate.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+              <div className="flex space-x-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleImport}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg flex items-center justify-center space-x-2"
+                  onClick={() => {
+                    if (extractedData) {
+                      onDataImported(extractedData);
+                      onClose();
+                    }
+                  }}
+                  className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
                 >
-                  <CheckCircle className="w-5 h-5" />
-                  <span>Import Data</span>
+                  Use Extracted Data
                 </motion.button>
                 
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setExtractedData(null)}
-                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   Try Again
                 </motion.button>
