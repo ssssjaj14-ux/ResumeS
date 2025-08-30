@@ -213,14 +213,14 @@ const Footer: React.FC = () => {
             >
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-white" />
+                  <span className="text-lg">🐼</span>
                 </div>
-                <span className="text-xl font-bold gradient-text">ResumeFlow</span>
+                <span className="text-xl font-bold gradient-text">CareerPanda</span>
               </div>
               
               <p className="text-gray-300 max-w-md">
-                Empowering Indian students to build world-class resumes and portfolios 
-                with AI-powered insights and professional templates.
+                Empowering professionals to accelerate their careers with AI-powered 
+                resume analysis, smart job matching, and personalized career guidance.
               </p>
               
               {/* Contact Information */}
@@ -352,6 +352,7 @@ const Footer: React.FC = () => {
               className="flex items-center space-x-2 text-gray-400 text-sm"
             >
               <span>© 2025 ResumeFlow. Made with</span>
+              <span>© 2025 CareerPanda. Made with</span>
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
@@ -359,6 +360,7 @@ const Footer: React.FC = () => {
                 <Heart className="w-4 h-4 text-red-500 fill-current" />
               </motion.div>
               <span>for Indian students by</span>
+              <span>for career success by</span>
               <motion.a
                 href={contactInfo.linkedin}
                 target="_blank"

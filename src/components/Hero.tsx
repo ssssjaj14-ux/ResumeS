@@ -56,8 +56,8 @@ const Hero: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 px-4 py-2 rounded-full text-sm font-medium text-blue-800 dark:text-blue-200 border border-blue-200/50 dark:border-blue-700/50"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>AI-Powered Resume Builder</span>
+            <span className="text-lg">🐼</span>
+            <span>AI-Powered Career Platform</span>
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -73,9 +73,9 @@ const Hero: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="text-4xl sm:text-6xl lg:text-7xl font-bold"
           >
-            <span className="gradient-text">Build Your Dream</span>
+            <span className="gradient-text">Unlock Your</span>
             <br />
-            <span className="text-gray-900 dark:text-white">Career Story</span>
+            <span className="text-gray-900 dark:text-white">Career Potential</span>
           </motion.h1>
 
           {/* Subtitle */}
@@ -85,8 +85,8 @@ const Hero: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed"
           >
-            Create ATS-friendly resumes with 30+ templates, build stunning portfolios, 
-            and discover 200+ job opportunities. Perfect for Indian students ready to land their dream jobs.
+            AI-powered resume analysis, smart job matching, and career guidance. 
+            Join thousands of professionals who've accelerated their careers with CareerPanda.
           </motion.p>
 
           {/* CTA Buttons */}

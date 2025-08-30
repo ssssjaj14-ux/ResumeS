@@ -720,13 +720,26 @@ JavaScript, Python, React, Node.js, Express, MongoDB, PostgreSQL, Git, AWS, Dock
                   title="Click to upload resume file"
                 />
                 <div className="flex flex-col items-center justify-center h-32 sm:h-40">
-                  <Upload className="w-10 h-10 text-blue-500 mb-2" />
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="relative"
+                  >
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-3 shadow-lg">
+                      <Upload className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">🐼</span>
+                    </div>
+                  </motion.div>
                   <span className="text-base sm:text-lg font-medium text-gray-700 dark:text-gray-200 mb-1">Drag & Drop or Tap to Upload</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">PDF or TXT, max 10MB</span>
                   {uploading && (
                     <div className="mt-2 flex items-center justify-center">
-                      <svg className="animate-spin h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-                      <span className="ml-2 text-blue-600 text-sm">Processing...</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                        <span className="text-blue-600 text-sm">🐼 AI is analyzing your resume...</span>
+                      </div>
                     </div>
                   )}
                 </div>

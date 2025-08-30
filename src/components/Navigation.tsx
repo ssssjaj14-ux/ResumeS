@@ -41,12 +41,10 @@ const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout }) => {
               whileHover={{ scale: 1.05 }}
             >
               <div className="w-14 h-14 sm:w-10 sm:h-10 bg-gradient-to-r from-indigo-600 to-fuchsia-500 rounded-full flex items-center justify-center shadow-lg">
-                {/* SVG Rocket Icon */}
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 sm:w-6 sm:h-6">
-                  <path d="M16 3l3 7h7l-5.5 4.5L23 22l-7-4-7 4 2.5-7.5L3 10h7l3-7z" fill="#fff"/>
-                </svg>
+                {/* Panda Logo */}
+                <span className="text-2xl sm:text-lg">🐼</span>
               </div>
-              <span className="hidden xs:inline text-xl sm:text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-fuchsia-500 bg-clip-text text-transparent tracking-wide drop-shadow pl-3 sm:pl-0">ResumeFlow</span>
+              <span className="hidden xs:inline text-xl sm:text-xl font-extrabold bg-gradient-to-r from-indigo-600 to-fuchsia-500 bg-clip-text text-transparent tracking-wide drop-shadow pl-3 sm:pl-0">CareerPanda</span>
             </motion.div>
 
             {/* Desktop Navigation */}

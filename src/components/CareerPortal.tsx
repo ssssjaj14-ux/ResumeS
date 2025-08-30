@@ -28,6 +28,7 @@ import { ResumeData } from '../utils/pdfGenerator';
 import toast from 'react-hot-toast';
 import { analyzeResumeWithAI, getCareerInsights } from '../services/aiService';
 import { getJobMarketAnalytics } from '../services/jobService';
+import { getJobRecommendationsWithAI } from '../services/geminiService';
 
 interface CareerPortalProps {
   isLoggedIn: boolean;
@@ -131,13 +132,33 @@ const CareerPortal: React.FC<CareerPortalProps> = ({ isLoggedIn, resumeData, onL
   const loadRecommendedJobs = async () => {
     if (resumeData?.skills && resumeData.skills.length > 0) {
       try {
+        // Use AI-powered job recommendations
+        const aiRecommendations = await getJobRecommendationsWithAI(resumeData.skills);
+        const convertedJobs = aiRecommendations.map((job, index) => ({
+          id: `ai-${index}`,
+          title: job.title,
+          company: job.company,
+          location: job.location,
+          type: 'full-time' as const,
+          experience: 'Based on your skills',
+          salary: job.salary,
+          description: job.description,
+          requirements: job.requirements,
+          posted: 'AI Recommended',
+          url: job.url,
+          logo: '',
+          remote: false,
+          skills: job.requirements
+        }));
+        setRecommendedJobs(convertedJobs);
+      } catch (error) {
+        console.error('Failed to load recommended jobs');
+        // Fallback to local recommendations
         const recommended = await getRecommendedJobs(
           resumeData.skills,
           resumeData.experience[0]?.duration || '0-2 years'
         );
         setRecommendedJobs(recommended);
-      } catch (error) {
-        console.error('Failed to load recommended jobs');
       }
     }
   };
