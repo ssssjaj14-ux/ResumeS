@@ -38,13 +38,13 @@ const ResumeBuilder: React.FC = () => {
   const { register, control, handleSubmit, watch, setValue, reset } = useForm<ResumeData>({
     defaultValues: {
       personalInfo: {
-        name: '',
-        email: '',
-        phone: '',
-        location: '',
-        summary: '',
-        linkedin: '',
-        github: ''
+        name: 'Shaik Mohammad Shakeel',
+        email: 'shakeelsk@pandascanpros.in',
+        phone: '8074015276',
+        linkedin: 'linkedin.com/in/shaik-mohammad-shakeel-ba5a771b1',
+        github: '',
+        summary: 'Experienced professional with a strong background in [Your Field]. Skilled in [Key Skills].',
+        location: ''
       },
       experience: [{ title: '', company: '', duration: '', description: '' }],
       education: [{ degree: '', institution: '', year: '', gpa: '' }],
@@ -71,12 +71,21 @@ const ResumeBuilder: React.FC = () => {
   const watchedData = watch();
 
   useEffect(() => {
-    // Load saved data
+    // Only load saved data if it exists, otherwise keep the default values
     const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        reset(parsedData);
+        // Merge with default values to ensure contact info is preserved
+        reset({
+          ...parsedData,
+          personalInfo: {
+            ...parsedData.personalInfo,
+            email: 'shakeelsk@pandascanpros.in',
+            phone: '8074015276',
+            linkedin: 'linkedin.com/in/shaik-mohammad-shakeel-ba5a771b1'
+          }
+        });
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
