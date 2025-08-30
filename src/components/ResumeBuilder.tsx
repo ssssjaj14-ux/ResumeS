@@ -16,7 +16,8 @@ import {
   Briefcase,
   GraduationCap,
   Code,
-  FolderOpen
+  FolderOpen,
+  Zap
 } from 'lucide-react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { generateResumePDF, ResumeData } from '../utils/pdfGenerator';
@@ -34,17 +35,18 @@ const ResumeBuilder: React.FC = () => {
   const [activeSection, setActiveSection] = useState('personal');
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [newSkill, setNewSkill] = useState('');
 
   const { register, control, handleSubmit, watch, setValue, reset } = useForm<ResumeData>({
     defaultValues: {
       personalInfo: {
-        name: 'Shaik Mohammad Shakeel',
-        email: 'shakeelsk@pandascanpros.in',
-        phone: '8074015276',
-        linkedin: 'linkedin.com/in/shaik-mohammad-shakeel-ba5a771b1',
-        github: '',
-        summary: 'Experienced professional with a strong background in [Your Field]. Skilled in [Key Skills].',
-        location: ''
+        name: '',
+        email: '',
+        phone: '',
+        location: '',
+        summary: '',
+        linkedin: '',
+        github: ''
       },
       experience: [{ title: '', company: '', duration: '', description: '' }],
       education: [{ degree: '', institution: '', year: '', gpa: '' }],
@@ -71,21 +73,12 @@ const ResumeBuilder: React.FC = () => {
   const watchedData = watch();
 
   useEffect(() => {
-    // Only load saved data if it exists, otherwise keep the default values
+    // Load saved data
     const savedData = localStorage.getItem('resumeData');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        // Merge with default values to ensure contact info is preserved
-        reset({
-          ...parsedData,
-          personalInfo: {
-            ...parsedData.personalInfo,
-            email: 'shakeelsk@pandascanpros.in',
-            phone: '8074015276',
-            linkedin: 'linkedin.com/in/shaik-mohammad-shakeel-ba5a771b1'
-          }
-        });
+        reset(parsedData);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -112,6 +105,7 @@ const ResumeBuilder: React.FC = () => {
     reset(importedData);
     localStorage.setItem('resumeData', JSON.stringify(importedData));
     toast.success('Resume data imported successfully!');
+    setShowImporter(false);
   };
 
   const handleAIAnalysis = async () => {
@@ -133,6 +127,24 @@ const ResumeBuilder: React.FC = () => {
     }
   };
 
+  // Skills management
+  const currentSkills = watchedData.skills || [];
+
+  const addSkill = () => {
+    if (newSkill.trim() && !currentSkills.includes(newSkill.trim())) {
+      setValue('skills', [...currentSkills, newSkill.trim()]);
+      setNewSkill('');
+      toast.success('Skill added successfully!');
+    } else if (currentSkills.includes(newSkill.trim())) {
+      toast.error('Skill already exists!');
+    }
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    setValue('skills', currentSkills.filter(skill => skill !== skillToRemove));
+    toast.success('Skill removed!');
+  };
+
   const sections = [
     { id: 'personal', label: 'Personal Info', icon: User, color: 'blue' },
     { id: 'experience', label: 'Experience', icon: Briefcase, color: 'green' },
@@ -149,25 +161,27 @@ const ResumeBuilder: React.FC = () => {
             Full Name *
           </label>
           <input
-            {...register('personalInfo.name', { required: true })}
+            {...register('personalInfo.name')}
             className="input-base"
-            placeholder="Enter your full name"
+            placeholder="John Doe"
+            required
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Email Address *
+            Email *
           </label>
           <input
-            {...register('personalInfo.email', { required: true })}
+            {...register('personalInfo.email')}
             type="email"
             className="input-base"
-            placeholder="your.email@example.com"
+            placeholder="john.doe@email.com"
+            required
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Phone Number
+            Phone
           </label>
           <input
             {...register('personalInfo.phone')}
@@ -182,39 +196,41 @@ const ResumeBuilder: React.FC = () => {
           <input
             {...register('personalInfo.location')}
             className="input-base"
-            placeholder="City, State, Country"
+            placeholder="Mumbai, Maharashtra"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            LinkedIn Profile
+            LinkedIn
           </label>
           <input
             {...register('personalInfo.linkedin')}
             className="input-base"
-            placeholder="https://linkedin.com/in/yourprofile"
+            placeholder="linkedin.com/in/johndoe"
           />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            GitHub Profile
+            GitHub
           </label>
           <input
             {...register('personalInfo.github')}
             className="input-base"
-            placeholder="https://github.com/yourusername"
+            placeholder="github.com/johndoe"
           />
         </div>
       </div>
+      
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Professional Summary *
         </label>
         <textarea
-          {...register('personalInfo.summary', { required: true })}
+          {...register('personalInfo.summary')}
           rows={4}
-          className="input-base resize-none"
-          placeholder="Write a compelling summary of your professional background, skills, and career objectives..."
+          className="input-base"
+          placeholder="Experienced software engineer with 5+ years in full-stack development..."
+          required
         />
       </div>
     </div>
@@ -227,7 +243,7 @@ const ResumeBuilder: React.FC = () => {
           key={field.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card-base p-6"
+          className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl"
         >
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -237,18 +253,18 @@ const ResumeBuilder: React.FC = () => {
               <button
                 type="button"
                 onClick={() => removeExperience(index)}
-                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                className="text-red-500 hover:text-red-700 transition-colors"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               {...register(`experience.${index}.title` as const)}
               className="input-base"
-              placeholder="Job Title"
+              placeholder="Job Title (e.g., Senior Software Engineer)"
             />
             <input
               {...register(`experience.${index}.company` as const)}
@@ -258,14 +274,14 @@ const ResumeBuilder: React.FC = () => {
             <input
               {...register(`experience.${index}.duration` as const)}
               className="input-base"
-              placeholder="Duration (e.g., Jan 2020 - Present)"
+              placeholder="Duration (e.g., Jan 2022 - Present)"
             />
           </div>
           
           <textarea
             {...register(`experience.${index}.description` as const)}
             rows={3}
-            className="input-base resize-none"
+            className="input-base mt-4"
             placeholder="Describe your responsibilities and achievements..."
           />
         </motion.div>
@@ -274,7 +290,7 @@ const ResumeBuilder: React.FC = () => {
       <motion.button
         type="button"
         onClick={() => appendExperience({ title: '', company: '', duration: '', description: '' })}
-        className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-gray-500 dark:text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center space-x-2"
+        className="w-full border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-gray-500 dark:text-gray-400 hover:border-green-500 hover:text-green-500 transition-colors flex items-center justify-center space-x-2"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -291,7 +307,7 @@ const ResumeBuilder: React.FC = () => {
           key={field.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card-base p-6"
+          className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl"
         >
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -301,7 +317,7 @@ const ResumeBuilder: React.FC = () => {
               <button
                 type="button"
                 onClick={() => removeEducation(index)}
-                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                className="text-red-500 hover:text-red-700 transition-colors"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
@@ -346,71 +362,55 @@ const ResumeBuilder: React.FC = () => {
     </div>
   );
 
-  const renderSkills = () => {
-    const [newSkill, setNewSkill] = useState('');
-    const currentSkills = watchedData.skills || [];
-
-    const addSkill = () => {
-      if (newSkill.trim() && !currentSkills.includes(newSkill.trim())) {
-        setValue('skills', [...currentSkills, newSkill.trim()]);
-        setNewSkill('');
-      }
-    };
-
-    const removeSkill = (skillToRemove: string) => {
-      setValue('skills', currentSkills.filter(skill => skill !== skillToRemove));
-    };
-
-    return (
-      <div className="space-y-6">
-        <div className="flex space-x-2">
-          <input
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-            className="input-base flex-1"
-            placeholder="Add a skill (e.g., JavaScript, React, Python)"
-          />
-          <motion.button
-            type="button"
-            onClick={addSkill}
-            className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Plus className="w-5 h-5" />
-          </motion.button>
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          {currentSkills.map((skill, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full flex items-center space-x-2 group"
-            >
-              <span>{skill}</span>
-              <button
-                type="button"
-                onClick={() => removeSkill(skill)}
-                className="opacity-0 group-hover:opacity-100 hover:bg-white/20 rounded-full p-1 transition-all"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </motion.div>
-          ))}
-        </div>
-
-        {currentSkills.length === 0 && (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-            <Code className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>No skills added yet. Add your technical and soft skills above.</p>
-          </div>
-        )}
+  const renderSkills = () => (
+    <div className="space-y-6">
+      <div className="flex space-x-2">
+        <input
+          value={newSkill}
+          onChange={(e) => setNewSkill(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && addSkill()}
+          className="input-base flex-1"
+          placeholder="Add a skill (e.g., JavaScript, React, Python)"
+        />
+        <motion.button
+          type="button"
+          onClick={addSkill}
+          className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Plus className="w-5 h-5" />
+        </motion.button>
       </div>
-    );
-  };
+
+      <div className="flex flex-wrap gap-3">
+        {currentSkills.map((skill, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full flex items-center space-x-2 group"
+          >
+            <span>{skill}</span>
+            <button
+              type="button"
+              onClick={() => removeSkill(skill)}
+              className="opacity-0 group-hover:opacity-100 hover:bg-white/20 rounded-full p-1 transition-all"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </motion.div>
+        ))}
+      </div>
+
+      {currentSkills.length === 0 && (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <Code className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>No skills added yet. Add your technical and soft skills above.</p>
+        </div>
+      )}
+    </div>
+  );
 
   const renderProjects = () => (
     <div className="space-y-6">
@@ -419,7 +419,7 @@ const ResumeBuilder: React.FC = () => {
           key={field.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card-base p-6"
+          className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl"
         >
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -429,38 +429,37 @@ const ResumeBuilder: React.FC = () => {
               <button
                 type="button"
                 onClick={() => removeProject(index)}
-                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                className="text-red-500 hover:text-red-700 transition-colors"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
             )}
           </div>
           
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               {...register(`projects.${index}.name` as const)}
               className="input-base"
               placeholder="Project Name"
             />
-            <textarea
-              {...register(`projects.${index}.description` as const)}
-              rows={3}
-              className="input-base resize-none"
-              placeholder="Describe your project, its purpose, and your role..."
+            <input
+              {...register(`projects.${index}.technologies` as const)}
+              className="input-base"
+              placeholder="Technologies Used"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                {...register(`projects.${index}.technologies` as const)}
-                className="input-base"
-                placeholder="Technologies used (e.g., React, Node.js, MongoDB)"
-              />
-              <input
-                {...register(`projects.${index}.link` as const)}
-                className="input-base"
-                placeholder="Project URL or GitHub link (optional)"
-              />
-            </div>
+            <input
+              {...register(`projects.${index}.link` as const)}
+              className="input-base"
+              placeholder="Project Link (optional)"
+            />
           </div>
+          
+          <textarea
+            {...register(`projects.${index}.description` as const)}
+            rows={3}
+            className="input-base mt-4"
+            placeholder="Describe your project..."
+          />
         </motion.div>
       ))}
       
@@ -495,108 +494,106 @@ const ResumeBuilder: React.FC = () => {
   };
 
   return (
-    <section id="resume" className="py-20 bg-gray-50 dark:bg-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 px-4 py-2 rounded-full text-sm font-medium text-blue-800 dark:text-blue-200 border border-blue-200/50 dark:border-blue-700/50 mb-6"
-          >
-            <span className="text-lg">🐼</span>
-            <span>AI Resume Builder</span>
-          </motion.div>
-          
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Build Your Perfect
-            <span className="gradient-text"> Resume</span>
+    <section className="py-16 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Build Your Professional Resume
           </h2>
-          
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Create an ATS-friendly resume with our step-by-step builder. Choose from 30+ 
-            professional templates and download as PDF when ready.
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Create a stunning resume with our AI-powered builder. Import existing resumes, get AI analysis, and download in multiple formats.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-3">
-            <div className="card-base p-6 sticky top-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                Resume Sections
+            {/* Quick Actions */}
+            <div className="card-base p-6 space-y-4 mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Quick Actions
               </h3>
               
+              <motion.button
+                type="button"
+                onClick={() => setShowImporter(true)}
+                className="w-full flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                aria-label="Import resume from file"
+              >
+                <Upload className="w-5 h-5" />
+                <span>Import Resume</span>
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={handleAIAnalysis}
+                disabled={isAnalyzing}
+                className="w-full flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                aria-label="Analyze resume with AI"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Analyzing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-5 h-5" />
+                    <span>AI Analysis</span>
+                  </>
+                )}
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={handleSave}
+                className="w-full flex items-center space-x-2 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                aria-label="Save current progress"
+              >
+                <Save className="w-5 h-5" />
+                <span>Save Progress</span>
+              </motion.button>
+
+              <motion.button
+                type="submit"
+                onClick={handleSubmit(onSubmit)}
+                className="w-full flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                aria-label="Download resume as PDF"
+              >
+                <Download className="w-5 h-5" />
+                <span>Download PDF</span>
+              </motion.button>
+            </div>
+
+            {/* Navigation */}
+            <div className="card-base p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Sections
+              </h3>
               <div className="space-y-2">
                 {sections.map((section) => (
-                  <motion.button
+                  <button
                     key={section.id}
-                    type="button"
                     onClick={() => setActiveSection(section.id)}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-all ${
+                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all ${
                       activeSection === section.id
-                        ? `bg-${section.color}-100 dark:bg-${section.color}-900/50 text-${section.color}-700 dark:text-${section.color}-300`
-                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                    aria-label={`Navigate to ${section.label} section`}
                   >
                     <section.icon className="w-5 h-5" />
-                    <span className="font-medium">{section.label}</span>
-                  </motion.button>
+                    <span>{section.label}</span>
+                  </button>
                 ))}
-              </div>
-
-              {/* Quick Actions */}
-              <div className="mt-8 space-y-3">
-                <motion.button
-                  type="button"
-                  onClick={() => setShowImporter(true)}
-                  className="w-full flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Upload className="w-5 h-5" />
-                  <span>Import Resume</span>
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  onClick={handleAIAnalysis}
-                  disabled={isAnalyzing}
-                  className="w-full flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      <span>Analyzing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Brain className="w-5 h-5" />
-                      <span>AI Analysis</span>
-                    </>
-                  )}
-                </motion.button>
-
-                <motion.button
-                  type="button"
-                  onClick={handleSave}
-                  className="w-full flex items-center space-x-2 bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition-all"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Save className="w-5 h-5" />
-                  <span>Save Progress</span>
-                </motion.button>
               </div>
             </div>
           </div>
@@ -604,6 +601,60 @@ const ResumeBuilder: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-9">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              {/* Main Action Buttons - Inside Content Area */}
+              <div className="card-base p-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  Quick Actions
+                </h3>
+                <div className="flex flex-wrap gap-4">
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowImporter(true)}
+                    className="flex items-center space-x-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Import resume from file"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span className="font-semibold">Import Resume</span>
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    onClick={handleAIAnalysis}
+                    disabled={isAnalyzing}
+                    className="flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg disabled:opacity-50"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Analyze resume with AI"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span className="font-semibold">Analyzing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Brain className="w-5 h-5" />
+                        <span className="font-semibold">AI Analysis</span>
+                      </>
+                    )}
+                  </motion.button>
+
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className="flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Preview resume"
+                  >
+                    <Eye className="w-5 h-5" />
+                    <span className="font-semibold">Preview Resume</span>
+                  </motion.button>
+                </div>
+              </div>
+
               {/* Template Selector */}
               <div className="card-base p-6">
                 <TemplateSelector
@@ -693,30 +744,6 @@ const ResumeBuilder: React.FC = () => {
                 </div>
                 
                 {renderActiveSection()}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 justify-center">
-                <motion.button
-                  type="button"
-                  onClick={() => setShowPreview(true)}
-                  className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-all shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Eye className="w-5 h-5" />
-                  <span>Preview Resume</span>
-                </motion.button>
-
-                <motion.button
-                  type="submit"
-                  className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Download className="w-5 h-5" />
-                  <span>Download PDF</span>
-                </motion.button>
               </div>
             </form>
           </div>
