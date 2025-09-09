@@ -34,10 +34,12 @@ export interface ResumeData {
 
 export const generateResumePDF = (data: ResumeData, templateId: string = 'modern-1'): void => {
   const template = getTemplateById(templateId);
-  const pdf = new jsPDF();
+  const pdf = new jsPDF('p', 'pt', 'a4'); // Use points for better precision
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
-  let yPosition = 20;
+  const margin = 40;
+  const contentWidth = pageWidth - (margin * 2);
+  let yPosition = margin + 20;
 
   // Helper function to convert hex to RGB
   const hexToRgb = (hex: string) => {
@@ -46,202 +48,49 @@ export const generateResumePDF = (data: ResumeData, templateId: string = 'modern
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
       b: parseInt(result[3], 16)
-    } : { r: 0, g: 0, b: 0 };
+    } : { r: 37, g: 99, b: 235 }; // Default blue
   };
 
-  // Helper function to add text with word wrapping
-  const addWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize: number = 10): number => {
-    pdf.setFontSize(fontSize);
-    const lines = pdf.splitTextToSize(text, maxWidth);
-    pdf.text(lines, x, y);
-    return y + (lines.length * fontSize * 0.4);
-  };
-
-  // Set template colors
-  const primaryColor = template?.colors.primary || '#2563EB';
-  const secondaryColor = template?.colors.secondary || '#1E40AF';
-  const primaryRgb = hexToRgb(primaryColor);
-  const secondaryRgb = hexToRgb(secondaryColor);
-
-  // Header with name and template styling
-  pdf.setTextColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-  pdf.setFontSize(28);
-  pdf.setFont('helvetica', 'bold');
-  pdf.text(data.personalInfo.name || 'Your Name', 20, yPosition);
-  yPosition += 15;
-
-  // Add a colored line under the name
-  pdf.setDrawColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-  pdf.setLineWidth(2);
-  pdf.line(20, yPosition - 5, pageWidth - 20, yPosition - 5);
-  yPosition += 5;
-
-  // Contact information
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(10);
-  pdf.setFont('helvetica', 'normal');
-  const contactInfo = [
-    data.personalInfo.email,
-    data.personalInfo.phone,
-    data.personalInfo.location,
-    data.personalInfo.linkedin,
-    data.personalInfo.github
-  ].filter(Boolean).join(' | ');
-  
-  yPosition = addWrappedText(contactInfo, 20, yPosition, pageWidth - 40);
-  yPosition += 10;
-
-  // Professional Summary
-  if (data.personalInfo.summary) {
-    pdf.setTextColor(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('PROFESSIONAL SUMMARY', 20, yPosition);
-    yPosition += 8;
+  // Helper function to add text with proper word wrapping and spacing
+  const addWrappedText = (
+    text: string, 
+    x: number, 
+    y: number, 
+    maxWidth: number, 
+    fontSize: number = 11,
+    lineHeight: number = 1.4
+  ): number => {
+    if (!text || text.trim() === '') return y;
     
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    yPosition = addWrappedText(data.personalInfo.summary, 20, yPosition, pageWidth - 40);
-    yPosition += 10;
-  }
-
-  // Experience
-  if (data.experience.length > 0) {
-    if (yPosition > pageHeight - 60) {
-      pdf.addPage();
-      yPosition = 20;
-    }
-
-    pdf.setTextColor(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('WORK EXPERIENCE', 20, yPosition);
-    yPosition += 8;
-
-    data.experience.forEach((exp) => {
-      if (yPosition > pageHeight - 40) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-
-      pdf.setTextColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(exp.title, 20, yPosition);
-      
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(`${exp.company} | ${exp.duration}`, 20, yPosition + 6);
-      yPosition += 12;
-
-      if (exp.description) {
-        pdf.setFontSize(10);
-        yPosition = addWrappedText(exp.description, 20, yPosition, pageWidth - 40);
-      }
-      yPosition += 8;
+    pdf.setFontSize(fontSize);
+    const lines = pdf.splitTextToSize(text.trim(), maxWidth);
+    const lineSpacing = fontSize * lineHeight;
+    
+    lines.forEach((line: string, index: number) => {
+      pdf.text(line, x, y + (index * lineSpacing));
     });
-  }
+    
+    return y + (lines.length * lineSpacing) + (fontSize * 0.5); // Add extra spacing after text block
+  };
 
-  // Education
-  if (data.education.length > 0) {
-    if (yPosition > pageHeight - 60) {
+  // Helper function to check if we need a new page
+  const checkPageBreak = (requiredSpace: number): number => {
+    if (yPosition + requiredSpace > pageHeight - margin) {
       pdf.addPage();
-      yPosition = 20;
+      return margin + 20;
     }
+    return yPosition;
+  };
 
-    pdf.setTextColor(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b);
-    pdf.setFontSize(14);
+  // Helper function to add section header
+  const addSectionHeader = (title: string, color: any): number => {
+    yPosition = checkPageBreak(60);
+    
+    // Add some space before section
+    yPosition += 20;
+    
+    pdf.setTextColor(color.r, color.g, color.b);
+    pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('EDUCATION', 20, yPosition);
-    yPosition += 8;
-
-    data.education.forEach((edu) => {
-      pdf.setTextColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(edu.degree, 20, yPosition);
-      
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFont('helvetica', 'normal');
-      const eduInfo = `${edu.institution} | ${edu.year}${edu.gpa ? ` | GPA: ${edu.gpa}` : ''}`;
-      pdf.text(eduInfo, 20, yPosition + 6);
-      yPosition += 15;
-    });
-  }
-
-  // Skills
-  if (data.skills.length > 0) {
-    if (yPosition > pageHeight - 40) {
-      pdf.addPage();
-      yPosition = 20;
-    }
-
-    pdf.setTextColor(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('SKILLS', 20, yPosition);
-    yPosition += 8;
-
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'normal');
-    const skillsText = data.skills.join(' • ');
-    yPosition = addWrappedText(skillsText, 20, yPosition, pageWidth - 40);
-  }
-
-  // Projects
-  if (data.projects && data.projects.length > 0) {
-    if (yPosition > pageHeight - 60) {
-      pdf.addPage();
-      yPosition = 20;
-    }
-
-    pdf.setTextColor(secondaryRgb.r, secondaryRgb.g, secondaryRgb.b);
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('PROJECTS', 20, yPosition);
-    yPosition += 8;
-
-    data.projects.forEach((project) => {
-      if (yPosition > pageHeight - 40) {
-        pdf.addPage();
-        yPosition = 20;
-      }
-
-      pdf.setTextColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(project.name, 20, yPosition);
-      yPosition += 6;
-
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      if (project.description) {
-        yPosition = addWrappedText(project.description, 20, yPosition, pageWidth - 40);
-      }
-      
-      if (project.technologies) {
-        yPosition = addWrappedText(`Technologies: ${project.technologies}`, 20, yPosition + 2, pageWidth - 40);
-      }
-      
-      if (project.link) {
-        pdf.setTextColor(primaryRgb.r, primaryRgb.g, primaryRgb.b);
-        pdf.text(project.link, 20, yPosition + 4);
-        pdf.setTextColor(0, 0, 0);
-        yPosition += 6;
-      }
-      yPosition += 8;
-    });
-  }
-
-  // Footer with template info
-  pdf.setFontSize(8);
-  pdf.setTextColor(128, 128, 128);
-  pdf.text(`Generated with ResumeFlow - ${template?.name || 'Professional'} Template`, 20, pageHeight - 10);
-
-  // Save the PDF
-  const fileName = `${data.personalInfo.name.replace(/\s+/g, '_')}_Resume_${template?.name.replace(/\s+/g, '_') || 'Professional'}.pdf` || 'Resume.pdf';
-  pdf.save(fileName);
+    pdf.text(title.toUpperCase(), margin, yPosition); 
 };
