@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
+import JobManagementApp from './components/JobManagementApp';
 import LoadingScreen from './components/LoadingScreen';
 import AIAssistant from './components/AIAssistant';
 import Navigation from './components/Navigation';
@@ -14,6 +15,7 @@ import { ResumeData } from './utils/pdfGenerator';
 import { Toaster } from 'react-hot-toast';
 
 function App() {
+  const [showJobManagement, setShowJobManagement] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData | undefined>();
@@ -72,6 +74,22 @@ function App() {
     setUser(null);
   };
 
+  // Check if we should show job management system
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('app') === 'jobs' || window.location.pathname.includes('/jobs') || window.location.pathname.includes('/admin')) {
+      setShowJobManagement(true);
+    }
+  }, []);
+
+  if (showJobManagement) {
+    return (
+      <ThemeProvider>
+        <JobManagementApp />
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider>
       <LoadingScreen 
@@ -98,6 +116,7 @@ function App() {
           user={user} 
           onLogin={() => setShowAuthModal(true)}
           onLogout={handleLogout}
+          onJobManagement={() => setShowJobManagement(true)}
         />
         <Hero />
         <Features />

@@ -7,9 +7,10 @@ interface NavigationProps {
   user?: any;
   onLogin: () => void;
   onLogout: () => void;
+  onJobManagement?: () => void;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout }) => {
+const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout, onJobManagement }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -28,6 +29,7 @@ const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout }) => {
     { name: 'Resume Builder', href: '#resume', icon: <FileText className="w-4 h-4" /> },
     { name: 'Portfolio', href: '#portfolio', icon: <User className="w-4 h-4" /> },
     { name: 'Career Portal', href: '#careers', icon: <User className="w-4 h-4" /> },
+    { name: 'Job Management', href: '#', icon: <User className="w-4 h-4" />, onClick: onJobManagement },
   ];
 
   return (
@@ -52,7 +54,8 @@ const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout }) => {
               {navItems.map((item) => (
                 <motion.a
                   key={item.name}
-                  href={item.href}
+                  href={item.onClick ? '#' : item.href}
+                  onClick={item.onClick ? (e) => { e.preventDefault(); item.onClick!(); } : undefined}
                   className="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -161,9 +164,15 @@ const Navigation: React.FC<NavigationProps> = ({ user, onLogin, onLogout }) => {
                   {navItems.map((item) => (
                     <motion.a
                       key={item.name}
-                      href={item.href}
+                      href={item.onClick ? '#' : item.href}
                       className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                      onClick={() => setIsOpen(false)}
+                      onClick={(e) => {
+                        if (item.onClick) {
+                          e.preventDefault();
+                          item.onClick();
+                        }
+                        setIsOpen(false);
+                      }}
                       whileHover={{ x: 10 }}
                     >
                       {item.icon}
